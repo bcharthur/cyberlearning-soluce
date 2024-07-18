@@ -1,0 +1,112 @@
+
+# Calcul mental (30 points)
+# Une petite multiplication toute simple. Mais en temps limité.
+#
+# Page du challenge : https://cyber-learning.fr/cyber-challenge/programmation/calcul/sujet.php?jeton=JETON
+#
+# Proposition de code par br0nson
+# LinkedIn : t.ly/fra3R
+
+import requests  # Pour faire des requêtes HTTP
+from bs4 import BeautifulSoup  # Pour parser le HTML
+import time  # Pour les pauses et la mesure du temps
+import sys  # Pour gérer les interruptions du script
+from colorama import Fore, Style, init  # Pour la coloration du texte dans la console
+
+# Initialisation de colorama
+init(autoreset=True)
+
+# URL de la page à scraper ATTENTION JETON A CHANGER EN FONCTION DE LA SESSION (le jeton fait 12 caractères)
+url = 'https://cyber-learning.fr/cyber-challenge/programmation/calcul/sujet.php?jeton=JETON'
+
+# Vérification du jeton
+if 'jeton=JETON' in url:
+    print(f"{Fore.RED}{Style.BRIGHT}Pense à remplacer ton jeton mon grand ;){Style.RESET_ALL}")
+    sys.exit(1)
+
+# Créer une session pour conserver les cookies et autres informations de session
+session = requests.Session()
+
+def main():
+    print(f"{Fore.CYAN}{Style.BRIGHT}")
+    print("===================================")
+    print("  Calcul mental")
+    print("  Programmation - 30 points")
+    print("")
+    print("  Proposé par br0nson")
+    print("  LinkedIn : t.ly/fra3R ")
+    print("===================================")
+    print("")
+
+    print(f"{Fore.GREEN}Démarrage du script de scraping...{Style.RESET_ALL}")
+    while True:
+        start_time = time.time()  # Enregistrer l'heure de début pour mesurer le temps écoulé
+
+        try:
+            # Récupérer le contenu de la page
+            response = session.get(url)
+            response.raise_for_status()  # Vérifie si la requête a réussi
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            # Rechercher la question mathématique
+            question = None
+            for line in soup.stripped_strings:
+                if line.startswith("Combien font "):
+                    question = line.split("Combien font ")[1].strip()
+                    break
+
+            if question is None:
+                raise ValueError("La question mathématique n'a pas été trouvée.")
+
+            # Calculer la réponse attendue
+            x, y = map(int, question.split(" x "))
+            expected_result = x * y
+
+            # Préparer les données pour le formulaire
+            form_data = {
+                'resultat': str(expected_result)
+            }
+
+            # Soumettre le formulaire
+            response = session.post(url, data=form_data)
+            response.raise_for_status()  # Vérifie si la requête a réussi
+
+            # Afficher le résultat de la soumission et le contenu de la page
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                result_tags = soup.find_all('b')
+                for tag in result_tags:
+                    if "BRAVO" in tag.text:
+                        print(f"{Fore.GREEN}Formulaire soumis avec succès.{Style.RESET_ALL}")
+                        print(f"{Fore.CYAN}Code obtenu : {tag.text.strip()}")
+                        return  # Arrêter le script après avoir trouvé le code
+                    else:
+                        print(f"{Fore.RED}Échec de l'affichage du code obtenu.{Style.RESET_ALL}")
+
+            else:
+                print(f"{Fore.RED}Échec de la soumission du formulaire. Code de statut: {response.status_code}{Style.RESET_ALL}")
+
+        except requests.RequestException as e:
+            print(f"{Fore.RED}Erreur lors de la requête HTTP : {e}{Style.RESET_ALL}")
+
+        except ValueError as e:
+            print(f"{Fore.RED}Erreur lors du traitement des données : {e}{Style.RESET_ALL}")
+
+        except Exception as e:
+            print(f"{Fore.RED}Erreur inattendue : {e}{Style.RESET_ALL}")
+
+        finally:
+            # Pause pour respecter les limites de temps et éviter de surcharger le serveur
+            time_elapsed = time.time() - start_time
+            if time_elapsed < 1.5:  # Ajustez ce délai si nécessaire
+                time.sleep(1.5 - time_elapsed)
+
+            # Pause avant la prochaine itération (ajustez la durée selon vos besoins)
+            time.sleep(0.5)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n{Fore.YELLOW}Script interrompu par l'utilisateur.{Style.RESET_ALL}")
+        sys.exit(0)

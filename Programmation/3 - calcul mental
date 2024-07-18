@@ -1,4 +1,3 @@
-
 # Calcul mental (30 points)
 # Une petite multiplication toute simple. Mais en temps limité.
 #
@@ -6,6 +5,7 @@
 #
 # Proposition de code par br0nson
 # LinkedIn : t.ly/fra3R
+
 
 import requests  # Pour faire des requêtes HTTP
 from bs4 import BeautifulSoup  # Pour parser le HTML

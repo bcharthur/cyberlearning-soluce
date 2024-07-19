@@ -1,0 +1,123 @@
+# Etes vous un robot ? (100 points)
+# Célèbre moyen de bloquer les robots. A vous de montrer que le votre est bien capable de lire ce Captcha.
+#
+# Page du challenge : https://cyber-learning.fr/cyber-challenge/programmation/captcha/sujet.php?jeton=JETON
+#
+# Proposition de code par br0nson
+# LinkedIn : t.ly/fra3R
+
+
+import requests  # Pour faire des requêtes HTTP
+from bs4 import BeautifulSoup  # Pour parser le HTML
+import base64  # Pour décoder les images en base64
+from PIL import Image, ImageEnhance, ImageFilter  # Pour manipuler les images
+from io import BytesIO  # Pour manipuler les données d'image en mémoire
+import pytesseract  # Pour la reconnaissance optique de caractères (OCR)
+import re  # Pour les expressions régulières
+import sys  # Pour gérer les interruptions du script
+from colorama import Fore, Style, init  # Pour la coloration du texte dans la console
+import time  # Pour ajouter des pauses entre les tentatives
+
+# Initialisation de colorama
+init(autoreset=True)
+
+# URL de la page à scraper ATTENTION JETON A CHANGER EN FONCTION DE LA SESSION (le jeton fait 12 caractères)
+url = 'https://cyber-learning.fr/cyber-challenge/programmation/captcha/sujet.php?jeton=JETON'
+
+# Vérification du jeton
+if 'jeton=JETON' in url:
+    print(f"{Fore.RED}{Style.BRIGHT}Pense à remplacer ton jeton mon grand ;){Style.RESET_ALL}")
+    sys.exit(1)
+
+# Créer une session pour conserver les cookies et autres informations de session
+session = requests.Session()
+
+def main():
+    print(f"{Fore.CYAN}{Style.BRIGHT}")
+    print("===================================")
+    print("  Etes vous un robot ?")
+    print("  Programmation - 100 points")
+    print("")
+    print("  Présenté par br0nson")
+    print("  LinkedIn : t.ly/fra3R ")
+    print("===================================")
+    print("")
+
+    print(f"{Fore.GREEN}Démarrage du script de scraping...{Style.RESET_ALL}")
+    print("")
+
+    while True:
+        try:
+            # Récupérer le contenu de la page
+            response = session.get(url)
+            response.raise_for_status()  # Vérifie si la requête a réussi
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            # Trouver l'image du CAPTCHA
+            img_tag = soup.find('img')
+            img_data = img_tag['src'].split(',')[1]  # Récupérer les données base64 de l'image
+
+            # Décoder l'image base64
+            img_bytes = base64.b64decode(img_data)
+            img = Image.open(BytesIO(img_bytes))
+
+            # Appliquer des transformations pour améliorer la reconnaissance
+            # Convertir en niveaux de gris
+            img = img.convert('L')
+
+            # Augmenter le contraste
+            enhancer = ImageEnhance.Contrast(img)
+            img = enhancer.enhance(2)
+
+            # Appliquer un filtre de netteté
+            img = img.filter(ImageFilter.SHARPEN)
+
+            # Optionnel: Sauvegarder l'image pour vérification
+            img.save("captcha_processed.png")
+
+            # Utiliser Tesseract pour décoder le CAPTCHA
+            captcha_text = pytesseract.image_to_string(img, config='--psm 8').strip()
+
+
+            # Préparer les données pour le formulaire
+            form_data = {
+                'captcha': captcha_text
+            }
+
+            # Soumettre le formulaire
+            response = session.post(url, data=form_data)
+            response.raise_for_status()  # Vérifie si la requête a réussi
+
+            # Vérifier si le défi est réussi
+            soup = BeautifulSoup(response.text, 'html.parser')
+            text = soup.get_text()
+
+            if "BRAVO" in text:
+                print(f"{Fore.BLUE}Captcha décodé : {captcha_text}{Style.RESET_ALL}")
+                print(f"{Fore.GREEN}Formulaire soumis avec succès.{Style.RESET_ALL}")
+                match = re.search(r'BRAVO ! Vous pouvez utiliser ce code : \[(.*?)\]', text)
+                if match:
+                    code = match.group(1)
+                    print(f"{Fore.CYAN}Code obtenu : {code}{Style.RESET_ALL}")
+                    break  # Sortir de la boucle une fois le code obtenu
+            else:
+                print(f"{Fore.YELLOW}Captcha illisible, rafraichissement en cours ...{Style.RESET_ALL}")
+
+        except requests.RequestException as e:
+            print(f"{Fore.RED}Erreur lors de la requête HTTP : {e}{Style.RESET_ALL}")
+
+        except ValueError as e:
+            print(f"{Fore.RED}Erreur lors du traitement des données : {e}{Style.RESET_ALL}")
+
+        except Exception as e:
+            print(f"{Fore.RED}Erreur inattendue : {e}{Style.RESET_ALL}")
+
+        finally:
+            time.sleep(1)  # Ajouter une pause pour éviter de surcharger le serveur
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n{Fore.YELLOW}Script interrompu par l'utilisateur.{Style.RESET_ALL}")
+        sys.exit(0)

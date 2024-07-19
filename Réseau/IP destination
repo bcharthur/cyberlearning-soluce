@@ -1,0 +1,44 @@
+# IP destination (10 points)
+#
+# PENSE A CHANGER LA TRAME, LA J'AI MIS LA MIENNE MAIS FAUT ADAPTER
+#
+# 0000	42 0B AF C2 63 DC 42 E4 3D C2 0F 16 08 00 45 00
+# 0010	00 28 00 00 40 00 40 01 82 AE FC 8F A1 1C  2A F5
+# 0020	2C DA 08 00 42 42 00 01 00 02 01 23 45 67 89 AB
+# 0030	09 00 FF FF FF FF 00 00 00 00 00 00 12 56 89 15
+#
+# Page du challenge : https://cyber-learning.fr/test-cybersecurite/?id_sujet=IPdesti4t&matiere=7
+#
+# Proposition de code par br0nson
+# LinkedIn : t.ly/fra3R
+
+
+def extract_ip_address(hex_data):
+   # Concaténation de toutes les lignes de données hexadécimales
+   hex_string = "".join(hex_data.split())
+
+
+   # L'adresse IP de destination commence à l'octet 30 et s'étend sur 4 octets (8 caractères hexadécimaux)
+   ip_destination_hex = hex_string[60:68]
+
+
+   # Conversion de l'adresse IP de destination en format décimal
+   ip_destination = ".".join(str(int(ip_destination_hex[i:i + 2], 16)) for i in range(0, len(ip_destination_hex), 2))
+
+
+   return ip_destination
+
+
+
+
+# Données hexadécimales fournies
+hex_data = """
+42 0B AF C2 63 DC 42 E4 3D C2 0F 16 08 00 45 00
+00 28 00 00 40 00 40 01 82 AE FC 8F A1 1C  2A F5
+2C DA 08 00 42 42 00 01 00 02 01 23 45 67 89 AB
+09 00 FF FF FF FF 00 00 00 00 00 00 12 56 89 15
+"""
+
+
+ip_destination_address = extract_ip_address(hex_data)
+print("L'adresse IP de destination est :", ip_destination_address)

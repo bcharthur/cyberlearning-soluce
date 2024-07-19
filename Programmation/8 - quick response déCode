@@ -1,0 +1,111 @@
+# Quick Response déCode (150 points)
+# Tentez de décoder le QR-code en quelques secondes. Utilisez vos langages favoris pour répondre le plus vite possible.
+#
+# Page du challenge : https://cyber-learning.fr/cyber-challenge/programmation/qrcode/sujet.php?jeton=JETON
+#
+# Proposition de code par br0nson
+# LinkedIn : t.ly/fra3R
+
+
+import requests  # Pour faire des requêtes HTTP
+from bs4 import BeautifulSoup  # Pour parser le HTML
+import base64  # Pour décoder les images en base64
+from PIL import Image  # Pour manipuler les images
+from io import BytesIO  # Pour manipuler les données d'image en mémoire
+from pyzbar.pyzbar import decode  # Pour décoder les QR codes
+import re  # Pour les expressions régulières
+from colorama import Fore, Style, init  # Pour la coloration du texte dans la console
+import sys  # Pour gérer les interruptions du script
+
+# Initialisation de colorama
+init(autoreset=True)
+
+# URL de la page à scraper
+url = 'https://cyber-learning.fr/cyber-challenge/programmation/qrcode/sujet.php?jeton=JETON'
+
+# Créer une session pour conserver les cookies et autres informations de session
+session = requests.Session()
+
+def main():
+    print(f"{Fore.CYAN}{Style.BRIGHT}")
+    print("===================================")
+    print("  Quick Response déCode")
+    print("  Programmation - 150 points")
+    print("")
+    print("  Présenté par br0nson")
+    print("  LinkedIn : t.ly/fra3R ")
+    print("===================================")
+    print("")
+
+    print(f"{Fore.GREEN}Démarrage du script de scraping...{Style.RESET_ALL}")
+    print("")
+
+    try:
+        # Récupérer le contenu de la page
+        response = session.get(url)
+        response.raise_for_status()  # Vérifie si la requête a réussi
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Trouver l'image du QR code
+        img_tag = soup.find('img')
+        img_data = img_tag['src'].split(',')[1]  # Récupérer les données base64 de l'image
+
+        # Décoder l'image base64
+        img_bytes = base64.b64decode(img_data)
+        img = Image.open(BytesIO(img_bytes))
+
+        # Décoder le QR code
+        qr_result = decode(img)
+        if not qr_result:
+            raise ValueError("QR code non décodable")
+
+        # Récupérer la valeur décodée du QR code
+        qr_text = qr_result[0].data.decode('utf-8')
+        print(f"{Fore.BLUE}QR Code décodé : {qr_text}{Style.RESET_ALL}")
+
+        # Utiliser une expression régulière pour extraire la clé du QR code
+        match = re.search(r"Le code est : ([A-Z0-9]+)", qr_text)
+        if match:
+            qr_value = match.group(1)
+        else:
+            raise ValueError("Clé du QR code non trouvée dans le texte décodé")
+
+        print(f"{Fore.YELLOW}Clé du QR Code : {qr_value}{Style.RESET_ALL}")
+
+        # Préparer les données pour le formulaire
+        form_data = {
+            'codeqr': qr_value
+        }
+
+        # Soumettre le formulaire
+        response = session.post(url, data=form_data)
+        response.raise_for_status()  # Vérifie si la requête a réussi
+
+        # Vérifier si le défi est réussi
+        soup = BeautifulSoup(response.text, 'html.parser')
+        text = soup.get_text()
+
+        if "BRAVO" in text:
+            print(f"{Fore.GREEN}Formulaire soumis avec succès.{Style.RESET_ALL}")
+            match = re.search(r'BRAVO ! Vous pouvez utiliser ce code : \[(.*?)\]', text)
+            if match:
+                code = match.group(1)
+                print(f"{Fore.CYAN}Code obtenu : {code}{Style.RESET_ALL}")
+        else:
+            print(f"{Fore.RED}Échec de l'affichage du code obtenu.{Style.RESET_ALL}")
+
+    except requests.RequestException as e:
+        print(f"{Fore.RED}Erreur lors de la requête HTTP : {e}{Style.RESET_ALL}")
+
+    except ValueError as e:
+        print(f"{Fore.RED}Erreur lors du traitement des données : {e}{Style.RESET_ALL}")
+
+    except Exception as e:
+        print(f"{Fore.RED}Erreur inattendue : {e}{Style.RESET_ALL}")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n{Fore.YELLOW}Script interrompu par l'utilisateur.{Style.RESET_ALL}")
+        sys.exit(0)

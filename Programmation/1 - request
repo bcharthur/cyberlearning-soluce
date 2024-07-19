@@ -1,0 +1,101 @@
+# Request (10 points)
+# Même un simple copier-coller ne sera pas assez rapide. Confiez cela à un programme !
+#
+# Page du challenge : https://cyber-learning.fr/cyber-challenge/programmation/socket/sujet.php?jeton=JETON
+#
+# Proposition de code par br0nson
+# LinkedIn : t.ly/fra3R
+
+import requests  # Pour faire des requêtes HTTP
+from bs4 import BeautifulSoup  # Pour parser le HTML
+from colorama import Fore, Style, init  # Pour la coloration du texte dans la console
+import sys  # Pour gérer les interruptions du script
+import time  # Pour ajouter une pause entre les tentatives
+import re  # Pour les expressions régulières
+
+# Initialisation de colorama
+init(autoreset=True)
+
+# URL de la page du défi
+url = 'https://cyber-learning.fr/cyber-challenge/programmation/socket/sujet.php?jeton=JETON'
+
+# Vérification du jeton
+if 'jeton=JETON' in url:
+    print(f"{Fore.RED}{Style.BRIGHT}Pense à remplacer ton jeton mon grand ;){Style.RESET_ALL}")
+    sys.exit(1)
+
+# Créer une session pour conserver les cookies et autres informations de session
+session = requests.Session()
+
+def main():
+    print(f"{Fore.CYAN}{Style.BRIGHT}")
+    print("===================================")
+    print("  Request Challenge")
+    print("  Programmation - 10 points")
+    print("")
+    print("  Présenté par br0nson")
+    print("  LinkedIn : t.ly/fra3R ")
+    print("===================================")
+    print("")
+
+    print(f"{Fore.GREEN}Démarrage du script de scraping...{Style.RESET_ALL}")
+    print("")
+
+    attempt = 0
+
+    while True:
+        try:
+            attempt += 1
+            print(f"{Fore.YELLOW}Tentative n°{attempt}...{Style.RESET_ALL}", end="\r")
+
+            # Récupérer le contenu de la page
+            response = session.get(url)
+            response.raise_for_status()  # Vérifie si la requête a réussi
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            # Trouver le code à renvoyer
+            target_text = soup.find('section', class_='cyberpunk black both').text
+            target_code = re.search(r'Renvoyer le code suivant \(qui n\'est pas le FLAG\) : ([A-Z]+)', target_text).group(1)
+            print(f"{Fore.BLUE}Code à renvoyer : {target_code}{Style.RESET_ALL}")
+
+            # Préparer les données pour le formulaire
+            form_data = {
+                'copie': target_code
+            }
+
+            # Soumettre le formulaire
+            response = session.post(url, data=form_data)
+            response.raise_for_status()  # Vérifie si la requête a réussi
+
+            # Vérifier si le défi est réussi
+            soup = BeautifulSoup(response.text, 'html.parser')
+            text = soup.get_text()
+
+            if "BRAVO" in text:
+                print(f"\n{Fore.GREEN}Formulaire soumis avec succès.{Style.RESET_ALL}")
+                match = re.search(r'BRAVO ! Vous pouvez utiliser ce code : \[(.*?)\]', text)
+                if match:
+                    code = match.group(1)
+                    print(f"{Fore.CYAN}Code obtenu : {code}{Style.RESET_ALL}")
+                    break  # Sortir de la boucle une fois le code obtenu
+            else:
+                print(f"\n{Fore.YELLOW}Code renvoyé : {target_code}, mais chargement ...{Style.RESET_ALL}")
+
+        except requests.RequestException as e:
+            print(f"\n{Fore.RED}Erreur lors de la requête HTTP : {e}{Style.RESET_ALL}")
+
+        except ValueError as e:
+            print(f"\n{Fore.RED}Erreur lors du traitement des données : {e}{Style.RESET_ALL}")
+
+        except Exception as e:
+            print(f"\n{Fore.RED}Erreur inattendue : {e}{Style.RESET_ALL}")
+
+        finally:
+            time.sleep(0.5)  # Ajouter une pause pour éviter de surcharger le serveur
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n{Fore.YELLOW}Script interrompu par l'utilisateur.{Style.RESET_ALL}")
+        sys.exit(0)

@@ -1,0 +1,92 @@
+# Parcoursup (100 points)
+# Ahhhh la magie du classement des élèves...
+# En fait, c'est souvent assez simple. Les notes sont coéfficientées par les établissements et hop ça donne un classement.
+# A vous de trier les élèves. Mais faites vite, vous avez 2s pour le faire...
+#
+# Page du challenge : https://cyber-learning.fr/cyber-challenge/programmation/parcoursup/index.php?jeton=JETON
+#
+# Proposition de code par br0nson
+# LinkedIn : t.ly/fra3R
+
+
+import requests
+from bs4 import BeautifulSoup
+from colorama import Fore, Style, init
+
+# Initialisation de colorama
+init(autoreset=True)
+
+# URL de la page à scraper
+url = 'https://cyber-learning.fr/cyber-challenge/programmation/parcoursup/index.php?jeton=Tvw06wDgIJ12'
+
+# Créer une session pour conserver les cookies et autres informations de session
+session = requests.Session()
+
+def main():
+    print(f"{Fore.CYAN}{Style.BRIGHT}")
+    print("===================================")
+    print("  Parcoursup")
+    print("  Programmation - 100 points")
+    print("")
+    print("  Présenté par br0nson")
+    print("  LinkedIn : t.ly/fra3R ")
+    print("===================================")
+    print("")
+    print(f"{Fore.GREEN}Démarrage du script de scraping...{Style.RESET_ALL}")
+    print("")
+
+    # Récupérer le contenu de la page
+    response = session.get(url)
+    response.raise_for_status()  # Vérifie si la requête a réussi
+    soup = BeautifulSoup(response.text, 'html.parser')
+
+    # Récupérer les prénoms des élèves
+    eleves = [span.text for span in soup.find_all('span', class_='prenom')]
+
+    # Récupérer les notes des élèves
+    notes_list = []
+    for notes_div in soup.find_all('div', class_='notes'):
+        notes = [int(span.text) for span in notes_div.find_all('span', class_='note')]
+        notes_list.append(notes)
+
+    # Récupérer les coefficients
+    coefficients = [int(span.text) for span in soup.find_all('span', class_='coef')]
+
+    # Calculer le score total de chaque élève en appliquant les coefficients
+    def calculer_score(notes, coefficients):
+        return sum(note * coef for note, coef in zip(notes, coefficients))
+
+    scores = [calculer_score(notes, coefficients) for notes in notes_list]
+
+    # Classer les élèves en fonction de leur score total de manière décroissante
+    eleves_scores = sorted(zip(eleves, scores), key=lambda x: x[1], reverse=True)
+    classement = ''.join(eleve[0][0] for eleve in eleves_scores)  # Utiliser l'initiale de chaque prénom
+
+    # Préparer les données pour le formulaire
+    form_data = {
+        'resultat': classement
+    }
+
+    # Soumettre le formulaire
+    response = session.post(url, data=form_data)
+    response.raise_for_status()  # Vérifie si la requête a réussi
+
+    # Vérifier si le défi est réussi
+    soup = BeautifulSoup(response.text, 'html.parser')
+    text = soup.get_text()
+
+    if "BRAVO" in text:
+        flag = soup.find('span', id='flag').text  # Récupérer le code du flag
+        print(f"{Fore.YELLOW}Classement des élèves : {classement}{Style.RESET_ALL}")
+        print(f"{Fore.GREEN}Formulaire soumis avec succès.{Style.RESET_ALL}")
+        print("")
+        print(f"{Fore.CYAN}Code obtenu : {flag}{Style.RESET_ALL}")
+    else:
+        print(f"{Fore.RED}Échec de l'affichage du code obtenu.{Style.RESET_ALL}")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n{Fore.YELLOW}Script interrompu par l'utilisateur.{Style.RESET_ALL}")
+        sys.exit(0)

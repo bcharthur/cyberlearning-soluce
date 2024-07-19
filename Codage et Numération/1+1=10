@@ -1,1 +1,56 @@
+1+1=10 (5 points)
+
+Résoudre cette opération mathématique...
+Donner la somme de ces deux nombres : 10100001+10010000
+
+Page du challenge : https://cyber-learning.fr/test-cybersecurite/?id_sujet=srSRTH4&matiere=3
+
+Proposition de code par br0nson
+LinkedIn : t.ly/fra3R
+
+
+
+Pour résoudre cette énigme, il faut comprendre que les opérations mathématiques sont données en base binaire (base 2).
+
+A)
+1 + 1 = 10 en base 2 :
+
+En binaire, 1 + 1 est égal à 10 (qui est 2 en base 10).
+
+B)
+Addition des deux nombres binaires 10100001 et 10010000 :
+
+Convertissons ces nombres en base 10 pour vérifier notre compréhension.
+
+10100001 (en binaire) = 1*2^7 + 0*2^6 + 1*2^5 + 0*2^4 + 0*2^3 + 0*2^2 + 0*2^1 + 1*2^0
+                      = 128 + 32 + 1
+                      = 161 (en base 10)
+
+10010000 (en binaire) = 1*2^7 + 0*2^6 + 0*2^5 + 1*2^4 + 0*2^3 + 0*2^2 + 0*2^1 + 0*2^0
+                      = 128 + 16
+                      = 144 (en base 10)
+
+C)
+Addition des deux nombres en base 10 :
+
+161 (en base 10) + 144 (en base 10) = 305 (en base 10)
+
+D)
+Convertir le résultat en base 2 :
+
+305 (en base 10) = 100110001 (en base 2)
+
+Pour résoudre l'énigme, vous pouvez directement ajouter les deux nombres en base binaire sans convertir en base 10, comme suit:
+
+Somme finale :
+
+  10100001
++ 10010000
+-----------
+100110001
+
+La somme des deux nombres binaires 10100001 et 10010000 est donc 100110001.
+
+La réponse à l'énigme est : 100110001 (en base 2).
+
 

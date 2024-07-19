@@ -1,0 +1,160 @@
+# Labyrinthe (300 points)
+# Indiquez le chemin de sortie du labyrinthe.
+# Evidemment, il faudra être extrêmement rapide...
+#
+# Page du challenge : https://cyber-learning.fr/cyber-challenge/programmation/maze/index.php?jeton=JETON
+#
+# Proposition de code par br0nson
+# LinkedIn : t.ly/fra3R
+
+
+import requests  # Pour faire des requêtes HTTP
+from bs4 import BeautifulSoup  # Pour parser le HTML
+from collections import deque  # Pour l'algorithme BFS
+from colorama import Fore, Style, init  # Pour la coloration du texte dans la console
+import sys  # Pour gérer les interruptions du script
+import time  # Pour ajouter une pause entre les tentatives
+import re  # Pour les expressions régulières
+
+# Initialisation de colorama
+init(autoreset=True)
+
+# URL de la page du défi
+url = 'https://cyber-learning.fr/cyber-challenge/programmation/maze/index.php?jeton=JETON'
+
+# Créer une session pour conserver les cookies et autres informations de session
+session = requests.Session()
+
+def main():
+    print(f"{Fore.CYAN}{Style.BRIGHT}")
+    print("===================================")
+    print("  Labyrinthe")
+    print("  Programmation - 300 points")
+    print("")
+    print("  Présenté par br0nson")
+    print("  LinkedIn : t.ly/fra3R ")
+    print("===================================")
+    print("")
+
+    print(f"{Fore.GREEN}Démarrage du script de scraping...{Style.RESET_ALL}")
+    print("")
+
+    attempt = 0
+
+    while True:
+        try:
+            attempt += 1
+            print(f"{Fore.YELLOW}Tentative n°{attempt}...{Style.RESET_ALL}", end="\r")
+
+            # Récupérer le contenu de la page
+            response = session.get(url)
+            response.raise_for_status()  # Vérifie si la requête a réussi
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            # Trouver le tableau du labyrinthe
+            table = soup.find('table')
+            rows = table.find_all('tr')
+
+            # Extraire le labyrinthe sous forme de liste de listes
+            maze = []
+            for row in rows:
+                cells = row.find_all('td')
+                row_data = []
+                for cell in cells:
+                    classes = cell.get('class', [])
+                    if 'depart' in classes:
+                        row_data.append('S')  # Départ
+                    elif 'arrivee' in classes:
+                        row_data.append('E')  # Arrivée
+                    elif 'blc_bas' in classes or 'blc_est' in classes:
+                        row_data.append(' ')  # Chemin
+                    else:
+                        row_data.append('#')  # Mur
+                maze.append(row_data)
+
+            # Trouver les coordonnées du départ et de l'arrivée
+            start = None
+            end = None
+            for r, row in enumerate(maze):
+                for c, val in enumerate(row):
+                    if val == 'S':
+                        start = (r, c)
+                    elif val == 'E':
+                        end = (r, c)
+
+            # Algorithme BFS pour trouver le chemin le plus court
+            def bfs(maze, start, end):
+                queue = deque([start])
+                visited = set()
+                parent = {start: None}
+
+                while queue:
+                    current = queue.popleft()
+                    if current == end:
+                        break
+
+                    r, c = current
+                    directions = [(r + 1, c), (r - 1, c), (r, c + 1), (r, c - 1)]
+                    for dr, dc in directions:
+                        if 0 <= dr < len(maze) and 0 <= dc < len(maze[0]) and maze[dr][dc] in (' ', 'E') and (dr, dc) not in visited:
+                            queue.append((dr, dc))
+                            visited.add((dr, dc))
+                            parent[(dr, dc)] = current
+
+                path = []
+                step = end
+                while step:
+                    path.append(step)
+                    step = parent[step]
+                path.reverse()
+                return path
+
+            # Trouver le chemin
+            path = bfs(maze, start, end)
+
+            # Convertir le chemin en séquence de lettres
+            sequence = ''
+            for r, c in path[1:-1]:  # Ignorer le départ et l'arrivée dans la séquence finale
+                sequence += table.find_all('tr')[r].find_all('td')[c].text
+
+            # Préparer les données pour le formulaire
+            form_data = {
+                'resultat': sequence
+            }
+
+            # Soumettre le formulaire
+            response = session.post(url, data=form_data)
+            response.raise_for_status()  # Vérifie si la requête a réussi
+
+            # Vérifier si le défi est réussi
+            soup = BeautifulSoup(response.text, 'html.parser')
+            text = soup.get_text()
+
+            if "BRAVO" in text:
+                print(f"\n{Fore.GREEN}Formulaire soumis avec succès.{Style.RESET_ALL}")
+                match = re.search(r'BRAVO ! Vous pouvez utiliser ce code : \[(.*?)\]', text)
+                if match:
+                    code = match.group(1)
+                    print(f"{Fore.CYAN}Code obtenu : {code}{Style.RESET_ALL}")
+                    break  # Sortir de la boucle une fois le code obtenu
+            else:
+                print(f"\n{Fore.YELLOW}Chemin trouvé : {sequence}, mais chargement ...{Style.RESET_ALL}")
+
+        except requests.RequestException as e:
+            print(f"\n{Fore.RED}Erreur lors de la requête HTTP : {e}{Style.RESET_ALL}")
+
+        except ValueError as e:
+            print(f"\n{Fore.RED}Erreur lors du traitement des données : {e}{Style.RESET_ALL}")
+
+        except Exception as e:
+            print(f"\n{Fore.RED}Erreur inattendue : {e}{Style.RESET_ALL}")
+
+        finally:
+            time.sleep(1)  # Ajouter une pause pour éviter de surcharger le serveur
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print(f"\n{Fore.YELLOW}Script interrompu par l'utilisateur.{Style.RESET_ALL}")
+        sys.exit(0)

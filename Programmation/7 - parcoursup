@@ -17,7 +17,7 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 # URL de la page à scraper
-url = 'https://cyber-learning.fr/cyber-challenge/programmation/parcoursup/index.php?jeton=Tvw06wDgIJ12'
+url = 'https://cyber-learning.fr/cyber-challenge/programmation/parcoursup/index.php?jeton=JETON'
 
 # Créer une session pour conserver les cookies et autres informations de session
 session = requests.Session()

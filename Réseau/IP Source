@@ -1,0 +1,41 @@
+# Dump hexadécimal fourni
+hex_dump = """
+0000	42 57 C5 2A 43 8C 42 7C 55 3D B9 74 08 00 45 00
+0010	00 28 00 00 40 00 40 01 82 AE BF 5C C0 E1 3D 15
+0020	BD 84 08 00 42 42 00 01 00 02 01 23 45 67 89 AB
+0030	09 00 FF FF FF FF 00 00 00 00 00 00 12 56 89 15
+"""
+
+
+def extract_source_ip(hex_dump):
+    # Initialisation de la liste des octets
+    byte_list = []
+
+    # Parcours de chaque ligne du dump
+    for line in hex_dump.strip().split('\n'):
+        # Séparation de l'offset et des données hexadécimales
+        parts = line.split('\t')
+        if len(parts) < 2:
+            continue  # Ignorer les lignes mal formatées
+        hex_bytes = parts[1].split()
+        # Ajout des octets à la liste
+        byte_list.extend(hex_bytes)
+
+    # Vérification que nous avons suffisamment d'octets
+    if len(byte_list) < 30:
+        raise ValueError("Le dump hexadécimal est trop court pour extraire l'adresse IP source.")
+
+    # Les adresses IP dans un paquet Ethernet sont situées après les 14 premiers octets (en-tête Ethernet)
+    # Dans l'en-tête IP, l'adresse source se trouve aux octets 12 à 15 (0-indexé)
+    # Donc, l'index global dans le dump est 14 + 12 = 26 à 29
+    source_ip_bytes = byte_list[26:30]
+
+    # Conversion des octets hexadécimaux en décimal
+    source_ip = '.'.join(str(int(byte, 16)) for byte in source_ip_bytes)
+
+    return source_ip
+
+
+# Extraction et affichage de l'adresse IP source
+source_ip = extract_source_ip(hex_dump)
+print("L'adresse IP source est :", source_ip)

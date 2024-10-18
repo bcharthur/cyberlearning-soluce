@@ -1,0 +1,104 @@
+import numpy as np
+from scipy.fftpack import fft
+from pydub import AudioSegment
+
+# Liste des fréquences DTMF pour chaque touche
+dtmf_freqs = {
+    '1': (697, 1209),
+    '2': (697, 1336),
+    '3': (697, 1477),
+    '4': (770, 1209),
+    '5': (770, 1336),
+    '6': (770, 1477),
+    '7': (852, 1209),
+    '8': (852, 1336),
+    '9': (852, 1477),
+    '0': (941, 1336),
+    '*': (941, 1209),
+    '#': (941, 1477)
+}
+
+# Mapping des touches vers les lettres
+keypad_mapping = {
+    '2': ['A', 'B', 'C'],
+    '3': ['D', 'E', 'F'],
+    '4': ['G', 'H', 'I'],
+    '5': ['J', 'K', 'L'],
+    '6': ['M', 'N', 'O'],
+    '7': ['P', 'Q', 'R', 'S'],
+    '8': ['T', 'U', 'V'],
+    '9': ['W', 'X', 'Y', 'Z'],
+    '0': [' '],  # 0 est souvent utilisé pour un espace
+    '1': ['1'],  # Optionnel selon le contexte, peut-être symboles
+    '*': ['*'],  # Peut-être utilisé pour des fonctions spéciales
+    '#': ['#']
+}
+
+# Fonction pour trouver les deux fréquences dominantes dans un segment de signal audio
+def find_two_dominant_freqs(signal, rate):
+    signal_fft = fft(signal)
+    freqs = np.fft.fftfreq(len(signal), 1 / rate)
+
+    signal_fft = np.abs(signal_fft[:len(signal) // 2])
+    freqs = freqs[:len(signal) // 2]
+
+    dominant_indices = np.argsort(signal_fft)[-2:]  # On prend les 2 plus grandes valeurs
+    dominant_freqs = freqs[dominant_indices]
+
+    return sorted(dominant_freqs)
+
+# Charger le fichier audio avec pydub (pour les fichiers .au)
+audio = AudioSegment.from_file('CallMeBaby.wav', format='wav')
+
+rate = audio.frame_rate
+data = np.array(audio.get_array_of_samples())
+
+# Si le fichier est stéréo, on ne garde qu'un seul canal
+if audio.channels == 2:
+    data = data[::2]
+
+# Diviser le fichier audio en segments correspondant à chaque tonalité
+window_size = int(rate * 0.2)  # Par exemple, analyser par fenêtres de 0.2 seconde
+dtmf_sequence = []
+
+for i in range(0, len(data), window_size):
+    segment = data[i:i + window_size]
+    if len(segment) == 0:
+        continue
+    dominant_freqs = find_two_dominant_freqs(segment, rate)
+
+    # Identifier la touche DTMF correspondant aux deux fréquences dominantes
+    for key, (low_freq, high_freq) in dtmf_freqs.items():
+        if abs(dominant_freqs[0] - low_freq) < 20 and abs(dominant_freqs[1] - high_freq) < 20:
+            dtmf_sequence.append(key)
+            break
+
+# Décoder la séquence de touches en lettres
+decoded_message = []
+current_char_sequence = []
+previous_key = None
+threshold_time = 0.5  # Seuil pour considérer qu'une touche est répétée rapidement (en secondes)
+
+for i, key in enumerate(dtmf_sequence):
+    if previous_key == key:
+        current_char_sequence.append(key)
+    else:
+        if previous_key:
+            # Traiter la séquence de touches précédente
+            key_count = len(current_char_sequence)
+            if previous_key in keypad_mapping:
+                letters = keypad_mapping[previous_key]
+                decoded_message.append(letters[(key_count - 1) % len(letters)])
+        # Réinitialiser pour la nouvelle touche
+        current_char_sequence = [key]
+    previous_key = key
+
+# Traiter la dernière séquence
+if previous_key:
+    key_count = len(current_char_sequence)
+    if previous_key in keypad_mapping:
+        letters = keypad_mapping[previous_key]
+        decoded_message.append(letters[(key_count - 1) % len(letters)])
+
+# Afficher le message décodé
+print("Message décodé : ", ''.join(decoded_message))

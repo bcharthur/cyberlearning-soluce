@@ -1,0 +1,35 @@
+# Carré de Polybe 6x6 (Lettres de A à Z + chiffres de 0 à 9)
+polybe_square = [
+    ['A', 'B', 'C', 'D', 'E', 'F'],
+    ['G', 'H', 'I', 'J', 'K', 'L'],
+    ['M', 'N', 'O', 'P', 'Q', 'R'],
+    ['S', 'T', 'U', 'V', 'W', 'X'],
+    ['Y', 'Z', '0', '1', '2', '3'],
+    ['4', '5', '6', '7', '8', '9']
+]
+
+# Le texte chiffré donné
+cipher_text = "3233434415262615 153223213115 1542 32334344151143 313342 1415 3411414115 2516526534"
+
+# Fonction pour déchiffrer le texte
+def polybe_decrypt(cipher_text):
+    # Séparer les groupes de chiffres
+    groups = cipher_text.split()
+
+    decrypted_message = []
+
+    # Parcourir chaque groupe
+    for group in groups:
+        decrypted_word = ""
+        # Prendre chaque paire de chiffres dans le groupe
+        for i in range(0, len(group), 2):
+            row = int(group[i]) - 1  # On ajuste pour les indices (commençant à 0)
+            col = int(group[i+1]) - 1
+            decrypted_word += polybe_square[row][col]  # On récupère la lettre ou le chiffre dans le carré
+        decrypted_message.append(decrypted_word)
+
+    return " ".join(decrypted_message)
+
+# Déchiffrer le message
+decrypted_message = polybe_decrypt(cipher_text)
+print(f"Message déchiffré : {decrypted_message}")

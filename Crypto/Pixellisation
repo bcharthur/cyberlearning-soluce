@@ -1,12 +1,6 @@
 from PIL import Image
 import re
 
-# Affichage initial
-print('''
-                 [ Solved by Souleymane Guerida AKA ( Th3_w1ck3d ) ]
-                    RootMe-challenges ==> Name : [ Pixel Madness] 
-''')
-
 # Données RLE fournies par l'énigme
 pixellisation_data = """
 +0x1+1x5+0x6+1x3+0x7+1x4+0x6+1x1+0x2+1x1+0x6+1x3

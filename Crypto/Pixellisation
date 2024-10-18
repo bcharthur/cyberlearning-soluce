@@ -1,0 +1,79 @@
+from PIL import Image
+import re
+
+# Affichage initial
+print('''
+                 [ Solved by Souleymane Guerida AKA ( Th3_w1ck3d ) ]
+                    RootMe-challenges ==> Name : [ Pixel Madness] 
+''')
+
+# Données RLE fournies par l'énigme
+pixellisation_data = """
++0x1+1x5+0x6+1x3+0x7+1x4+0x6+1x1+0x2+1x1+0x6+1x3
++0x3+1x1+0x9+1x1+0x8+1x1+0x9+1x1+0x2+1x1+0x6+1x1+0x2+1x1
++0x3+1x1+0x9+1x1+0x8+1x4+0x6+1x4+0x6+1x1+0x3+1x1
++0x3+1x1+0x9+1x1+0x11+1x1+0x6+1x1+0x2+1x1+0x6+1x1+0x3+1x1
++0x3+1x1+0x9+1x1+0x11+1x1+0x6+1x1+0x2+1x1+0x6+1x1+0x2+1x1
++0x3+1x1+0x8+1x3+0x7+1x4+0x6+1x1+0x2+1x1+0x6+1x3
+"""
+
+
+def decode_rle(line):
+    """
+    Décode une ligne RLE en une chaîne binaire.
+    Chaque segment 'NxM' est converti en 'N' répété 'M' fois.
+    """
+    # Utiliser une expression régulière pour extraire tous les couples (N, M)
+    pattern = re.compile(r'([01])x(\d+)')
+    matches = pattern.findall(line)
+    bits = ''
+    for bit, count in matches:
+        bits += bit * int(count)
+    return bits
+
+
+# Processus de décodage
+def process_pixellisation(data):
+    """
+    Décode les données RLE et génère une image.
+    """
+    # Séparer les lignes de données
+    lines = data.strip().split('\n')
+    decoded_lines = []
+
+    # Décoder chaque ligne et collecter les bits
+    for idx, line in enumerate(lines, start=1):
+        bits = decode_rle(line)
+        decoded_lines.append(bits)
+        print(f"Line {idx}: {bits} (length: {len(bits)})")  # Debugging
+
+    # Déterminer les dimensions de l'image
+    width = max(len(line) for line in decoded_lines)
+    height = len(decoded_lines)
+    print(f"Image dimensions: {width}x{height}")
+
+    # Remplir les lignes avec des '0' (blanc) pour égaliser les longueurs
+    padded_lines = [line.ljust(width, '0') for line in decoded_lines]
+
+    # Convertir les bits en pixels (0 = blanc, 1 = noir)
+    pixels = []
+    for line in padded_lines:
+        for bit in line:
+            if bit == '0':
+                pixels.append((255, 255, 255))  # Blanc
+            elif bit == '1':
+                pixels.append((0, 0, 0))  # Noir
+            else:
+                # Si un bit inattendu est rencontré, utiliser une couleur rouge pour l'indiquer
+                pixels.append((255, 0, 0))
+
+    # Créer l'image
+    image_out = Image.new("RGB", (width, height), "white")
+    image_out.putdata(pixels)
+    image_out.save('Solve.png')
+    image_out.show()
+    print("Image générée et sauvegardée sous 'Solve.png'.")
+
+
+# Exécuter le processus
+process_pixellisation(pixellisation_data)

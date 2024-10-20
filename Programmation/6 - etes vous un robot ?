@@ -5,7 +5,15 @@
 #
 # Proposition de code par br0nson
 # LinkedIn : t.ly/fra3R
-
+#
+# ! IMPORTANT ! il vous faut d'abord installer Tesseract pour reconnaitre les captchas, il faut l'installer avec les commandes suivantes :
+# (lien url : https://chocolatey.org/install)
+# Commande :
+# Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+#
+# puis installer Tesseract via cette commande
+# Commande :
+# choco install tesseract
 
 import requests  # Pour faire des requêtes HTTP
 from bs4 import BeautifulSoup  # Pour parser le HTML
@@ -18,11 +26,14 @@ import sys  # Pour gérer les interruptions du script
 from colorama import Fore, Style, init  # Pour la coloration du texte dans la console
 import time  # Pour ajouter des pauses entre les tentatives
 
+# Spécifiez le chemin d'accès à Tesseract
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
 # Initialisation de colorama
 init(autoreset=True)
 
 # URL de la page à scraper ATTENTION JETON A CHANGER EN FONCTION DE LA SESSION (le jeton fait 12 caractères)
-url = 'https://cyber-learning.fr/cyber-challenge/programmation/captcha/sujet.php?jeton=JETON'
+url = 'https://cyber-learning.fr/cyber-challenge/programmation/captcha/sujet.php?jeton=JN1U7fYs7O15'
 
 # Vérification du jeton
 if 'jeton=JETON' in url:
@@ -77,7 +88,6 @@ def main():
 
             # Utiliser Tesseract pour décoder le CAPTCHA
             captcha_text = pytesseract.image_to_string(img, config='--psm 8').strip()
-
 
             # Préparer les données pour le formulaire
             form_data = {

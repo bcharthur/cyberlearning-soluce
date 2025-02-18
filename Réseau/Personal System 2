@@ -1,0 +1,28 @@
+Explication simplifiée :
+
+Découpage de la séquence :
+La séquence est organisée en groupes de trois éléments :
+code - 0xF0 - code
+Le code 0xF0 indique simplement que la touche est relâchée. On peut donc l'ignorer et ne retenir que les codes suivants :
+3A, 2B, 35, 15, 1B, 42, 23, 1D, 44, 33
+
+Association des codes aux touches :
+En utilisant une table de scan codes PS/2 (set 2) pour un clavier QWERTY, on associe chaque code à une touche :
+
+3A → M
+2B → F
+35 → Y
+15 → Q
+1B → S
+42 → K
+23 → D
+1D → W
+44 → O
+33 → H
+Formation du message :
+En mettant les lettres dans l'ordre, on obtient :
+M F Y Q S K D W O H
+Ce qui donne le message final :
+MFYQSKDWOH
+
+C'est ainsi que le vieux protocole PS/2 envoie le message "MFYQSKDWOH".

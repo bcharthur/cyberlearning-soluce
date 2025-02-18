@@ -1,0 +1,56 @@
+Analysons la trame :
+
+7E 10 01 20 01 01 72 42 46 52 38 69 74 31 48 54 61 6B 80 F5 7E
+
+Délimiteurs de trame :
+Le premier et le dernier octet sont la marque de début/fin (7E).
+On retire donc ces octets.
+
+Champ adresses et contrôle :
+La trame restante est :
+
+10 01 20 01 01 72 42 46 52 38 69 74 31 48 54 61 6B 80 F5
+
+Dans ce protocole, on suppose que :
+
+Les deux premiers octets constituent l’adresse destination :
+10 01 → "1001"
+Les deux octets suivants constituent l’adresse source :
+20 01 → "2001"
+Le cinquième octet (01) est un champ de contrôle qu’on ignore.
+Données utiles :
+Le reste de la trame (avant le checksum) est la donnée.
+
+On prend les 12 octets suivants :
+
+72 42 46 52 38 69 74 31 48 54 61 6B
+
+En convertissant chaque octet en caractère ASCII :
+
+72 → r
+42 → B
+46 → F
+52 → R
+38 → 8
+69 → i
+74 → t
+31 → 1
+48 → H
+54 → T
+61 → a
+6B → k
+Cela donne la chaîne : rBFR8it1HTak
+
+Construction du FLAG :
+Le FLAG attendu est la concaténation :
+adresse source + adresse destination + donnée décodée
+
+Ici :
+Adresse source (extrait plus haut) : 2001
+Adresse destination : 1001
+Donnée décodée : rBFR8it1HTak
+
+Ce qui donne :
+20011001rBFR8it1HTak
+
+FLAG final : 20011001rBFR8it1HTak

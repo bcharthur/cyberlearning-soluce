@@ -1,0 +1,67 @@
+Nous allons analyser les données reçues. Chaque valeur est sur 8 hexadécimaux et se présente sous la forme :
+
+  000XYYYY
+
+Les 4 premiers chiffres (000X) semblent indiquer un numéro d’ordre (ici X varie entre 1 et 6).
+Les 4 derniers chiffres (YYYY) représentent deux octets, qu’on peut convertir en deux caractères ASCII (chaque octet = 2 hex).
+Étape 1 : Extraire l’ordre et la donnée
+
+Découpons chaque valeur :
+
+0005614e
+
+Ordre : 0005 → 5
+Donnée : 614e
+→ 0x61 = a
+→ 0x4e = N
+Donnée : aN
+0002384c
+
+Ordre : 0002 → 2
+Donnée : 384c
+→ 0x38 = 8
+→ 0x4c = L
+Donnée : 8L
+00047936
+
+Ordre : 0004 → 4
+Donnée : 7936
+→ 0x79 = y
+→ 0x36 = 6
+Donnée : y6
+00065971
+
+Ordre : 0006 → 6
+Donnée : 5971
+→ 0x59 = Y
+→ 0x71 = q
+Donnée : Yq
+00017734
+
+Ordre : 0001 → 1
+Donnée : 7734
+→ 0x77 = w
+→ 0x34 = 4
+Donnée : w4
+0003576f
+
+Ordre : 0003 → 3
+Donnée : 576f
+→ 0x57 = W
+→ 0x6f = o
+Donnée : Wo
+Étape 2 : Ordonner et concaténer
+
+On range les paires dans l’ordre croissant de leur numéro :
+
+Ordre 1 : w4
+Ordre 2 : 8L
+Ordre 3 : Wo
+Ordre 4 : y6
+Ordre 5 : aN
+Ordre 6 : Yq
+La concaténation donne :
+
+  w4 + 8L + Wo + y6 + aN + Yq = w48LWoy6aNYq
+
+FLAG : w48LWoy6aNYq

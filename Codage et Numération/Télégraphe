@@ -1,0 +1,52 @@
+Décodage du message "Télégraphe" en ITA2 (MSB-first)
+Contexte
+Le challenge « Télégraphe » vous présente un message binaire :
+
+1010001010110111011111111110011001011110110111000011111011011011010001
+Ce message est encodé en 5 bits par caractère, ce qui correspond au code Baudot (aussi appelé ITA2). Ce système a longtemps été utilisé pour la télégraphie et comporte deux jeux de symboles (lettres et chiffres/symboles) avec des codes de shift (changement de mode).
+
+Dans notre cas, nous utilisons la version ITA2 en lecture MSB-first, c'est-à-dire que chaque groupe de 5 bits se lit de la gauche (bit le plus significatif) vers la droite.
+
+Étapes du décodage
+1. Découpage en groupes de 5 bits
+La chaîne binaire comporte 70 bits, ce qui nous donne 14 groupes de 5 bits chacun. En les séparant, on obtient :
+
+10100  
+01010  
+11011  
+10111  
+11111  
+10011  
+00101  
+11110  
+11011  
+10000  
+11111  
+01101  
+10110  
+10001
+
+2. Interprétation avec le code ITA2 (MSB-first)
+Le code ITA2 attribue à chaque groupe de 5 bits un caractère. Notez que le protocole utilise des shift (LTRS et FIGS) pour basculer entre lettres et chiffres/symboles. Dans le processus de décodage, certains groupes correspondent à ces codes de changement de mode et ne s’impriment pas directement dans le message final.
+
+En utilisant un décodeur ITA2 (par exemple via dcode.fr ou une table ITA2 adaptée) en mode MSB-first, 
+(utilise https://www.dcode.fr/code-baudot en décochant "Afficher chaque touche (résultat brut)")
+on obtient la chaîne décodée suivante :
+
+HR1BLV5FPZ
+
+C’est le résultat final, après que les codes de changement de mode aient été gérés en interne pour afficher uniquement les caractères imprimables.
+
+3. Résultat final
+Le flag à soumettre pour ce challenge est donc :
+
+HR1BLV5FPZ
+
+
+Conclusion
+Pour résumer, voici le processus de décodage :
+
+Découpage de la chaîne binaire en groupes de 5 bits.
+Lecture en mode MSB-first pour chaque groupe.
+Utilisation de la table ITA2 (avec gestion des shifts LTRS/FIGS) pour traduire chaque groupe en caractère.
+Extraction du message final, qui est le flag : HR1BLV5FPZ.

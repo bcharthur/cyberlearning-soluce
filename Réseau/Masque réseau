@@ -1,0 +1,18 @@
+Nous allons déterminer l'IP hôte minimale et l'IP hôte maximale pour l'adresse IP 221.181.213.150 avec le masque 255.255.240.0 (/20).
+
+Étape 1 : Identifier l'adresse du réseau
+Le masque /20 correspond à 255.255.240.0.
+La partie réseau couvre les 20 premiers bits, soit :
+221.181.208.0 (en appliquant le masque)
+
+Étape 2 : Déterminer l'IP hôte minimale
+L'IP hôte minimale est la première adresse utilisable (adresse réseau +1) :
+221.181.208.1
+
+Étape 3 : Déterminer l'IP hôte maximale
+L'IP hôte maximale est la dernière adresse utilisable (broadcast -1).
+L'adresse de broadcast pour le sous-réseau /20 est 221.181.223.255.
+Donc, l'IP hôte maximale est 221.181.223.254.
+
+Réponse finale :
+221.181.208.1-221.181.223.254

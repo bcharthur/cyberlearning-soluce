@@ -1,0 +1,56 @@
+Dans l'URL c'est marqué "https://cyber-learning.fr/test-cybersecurite/?id_sujet=100TRON1k&matiere=7"
+
+Quel est le protocole ? Et bien 100TRON1k = Centronic (interface Centronics/IEEE1284)
+
+Contexte
+Le challenge "Vieille impression" fournit une trame correspondant à une transmission via port parallèle (interface Centronics/IEEE1284) en mode SPP (Simple Parallel Port). Dans ce mode, le PC envoie un octet sur 8 lignes de données (D7 à D0) à chaque impulsion de STROBE qui indique à l'imprimante de « latcher » (capturer) les données à imprimer.
+
+La trame donnée est la suivante :
+
+Temps --->
+STROBE : _--__--__--__--__--__--__--__--__--__--_
+ACK    : __--__--__--__--__--__--__--__--__--__--
+D7     : 1111000000000000111111111111000000000000
+D6     : 1111111111110000000000000000000000001111
+D5     : 0000111111110000111100001111000000000000
+D4     : 1111000011111111000011111111111100001111
+D3     : 0000111100001111111111110000111111111111
+D2     : 0000000011111111111111110000000011111111
+D1     : 1111111111111111000000001111111111111111
+D0     : 0000000000000000000000000000000000000000
+
+Étapes de Décodage
+Identification des impulsions STROBE
+La ligne STROBE présente une alternance régulière (des phases hautes et basses). Chaque impulsion (période active de STROBE) correspond à l'instant où l'imprimante lit l'état des 8 lignes de données.
+
+Découpage de la trame
+La trame dure 40 « échantillons » (colonnes temporelles), ce qui correspond à 10 impulsions de STROBE (chaque impulsion couvrant 4 échantillons). Pour chaque impulsion, on considère que l'état stable sur chaque ligne (D7 à D0) donne un bit.
+
+Reconstitution des octets
+Pour chaque impulsion (ou groupe) :
+
+On lit les 8 bits correspondant aux lignes D7 à D0, dans cet ordre.
+Ces 8 bits forment un octet.
+Par exemple, pour un groupe donné, on pourrait extraire quelque chose comme :
+D7 D6 D5 D4 D3 D2 D1 D0 = 1 1 0 1 0 0 1 0
+Inversion de l'ordre vertical
+Dans les impressions matricielles issues d'un port parallèle, il est fréquent que l'ordonnancement vertical soit inversé.
+Ainsi, pour chaque octet extrait, on inverse l'ordre des bits (on lit de D0 à D7 au lieu de D7 à D0).
+Dans l'exemple, l'octet 11010010 devient 01001011, ce qui correspond à l'hexadécimal 4B (et à la lettre K en ASCII).
+
+Conversion en ASCII
+On répète ce processus pour chacune des 10 impulsions. Au final, les 10 octets obtenus (après inversion des bits) se convertissent en caractères ASCII, dans l'ordre de lecture.
+La conversion aboutit au message :
+
+K V n x 5 9 M X p z
+
+En supprimant les espaces, cela donne le FLAG final : KVnx59MXpz.
+
+Conclusion
+En exploitant le fonctionnement du port parallèle SPP (interface Centronics/IEEE1284) et en appliquant :
+
+Le découpage de la trame en impulsions STROBE,
+L'extraction des 8 bits (D7 à D0) par impulsion,
+L'inversion de l'ordre des bits,
+Et enfin la conversion en ASCII,
+nous obtenons le FLAG KVnx59MXpz.

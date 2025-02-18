@@ -1,0 +1,18 @@
+Nous avons une plage d’adresses :
+
+IP minimale : 158.254.0.1
+IP maximale : 158.254.255.254
+
+Étape 1 : Identifier l'adresse réseau
+L'adresse réseau correspond à l'IP minimale avec tous les bits d'hôte à 0.
+
+158.254.0.0
+
+Étape 2 : Identifier le masque réseau
+L'IP maximale 158.254.255.254 indique que tous les bits d'hôte sont à 1 sauf le dernier bit.
+
+Cette plage couvre 158.254.0.0 → 158.254.255.255, soit 65 536 adresses.
+Cela correspond à un masque /16 (255.255.0.0).
+
+Réponse finale :
+158.254.0.0-16

@@ -1,0 +1,51 @@
+Smack Ohh Smack – Décodage Stéganographie par SMS Emoji
+SMS reçu (nouvelle version) : 🥰😚🥰 🥰🥰🥰 🥰🥰🥰😚 🥰🥰😚🥰 😚😚 😚😚😚 😚🥰😚😚
+
+Méthode de décodage :
+
+Attribution des symboles Morse
+
+On choisit de mapper :
+🥰 → point ( . )
+😚 → trait ( - )
+Séparation des lettres
+
+Les espaces séparent les lettres en code Morse.
+Découpage en groupes et conversion
+Chaque groupe d'emojis est converti en Morse, puis en lettre selon la table Morse :
+
+Groupe 1 : 🥰😚🥰
+→ . - .
+→ en Morse, .-. correspond à R
+
+Groupe 2 : 🥰🥰🥰
+→ . . .
+→ ... correspond à S
+
+Groupe 3 : 🥰🥰🥰😚
+→ . . . -
+→ ...- correspond à V
+
+Groupe 4 : 🥰🥰😚🥰
+→ . . - .
+→ ..-. correspond à F
+
+Groupe 5 : 😚😚
+→ - -
+→ -- correspond à M
+
+Groupe 6 : 😚😚😚
+→ - - -
+→ --- correspond à O
+
+Groupe 7 : 😚🥰😚😚
+→ - . - -
+→ -.-- correspond à Y
+
+Assemblage du message final
+En mettant les lettres dans l'ordre, on obtient :
+  R S V F M O Y
+Ce qui donne le flag : RSVFMOY
+
+FLAG final : RSVFMOY
+Cette méthode explique comment, en assignant 🥰 = . et 😚 = -, et en séparant les groupes par des espaces, le SMS se traduit en code Morse, puis en texte.

@@ -1,0 +1,49 @@
+Conversion du nombre 3920 en système à base tournante
+Bases et alphabets utilisés (par position, de droite à gauche) :
+
+Position 1 : Base 4 – chiffres : A=0, B=1, C=2, D=3
+Position 2 : Base 5 – chiffres : A=0, B=1, C=2, D=3, E=4
+Position 3 : Base 6 – chiffres : A=0, B=1, C=2, D=3, E=4, F=5
+Position 4 : Base 7 – chiffres : A=0, B=1, C=2, D=3, E=4, F=5, G=6
+Position 5 : Base 4 (la séquence recommence)
+Position 6 : Base 5
+Calcul des poids de chaque position (de droite à gauche) :
+
+Pos1 (base 4) : poids = 1
+Pos2 (base 5) : poids = 4
+Pos3 (base 6) : poids = 4 * 5 = 20
+Pos4 (base 7) : poids = 4 * 5 * 6 = 120
+Pos5 (base 4) : poids = 4 * 5 * 6 * 7 = 840
+Pos6 (base 5) : poids = 4 * 5 * 6 * 7 * 4 = 3360
+On veut exprimer 3920 comme : 3920 = d6×3360 + d5×840 + d4×120 + d3×20 + d2×4 + d1×1
+
+Où :
+
+d6 (pos6, base 5) est entre 0 et 4
+d5 (pos5, base 4) est entre 0 et 3
+d4 (pos4, base 7) est entre 0 et 6
+d3 (pos3, base 6) est entre 0 et 5
+d2 (pos2, base 5) est entre 0 et 4
+d1 (pos1, base 4) est entre 0 et 3
+Calcul :
+
+d6 = 3920 ÷ 3360 = 1 (reste 3920 – 1×3360 = 560)
+d5 = 560 ÷ 840 = 0 (reste 560)
+d4 = 560 ÷ 120 = 4 (reste 560 – 4×120 = 80)
+d3 = 80 ÷ 20 = 4 (reste 80 – 4×20 = 0)
+d2 = 0 ÷ 4 = 0
+d1 = 0
+Les chiffres obtenus sont : 1, 0, 4, 4, 0, 0
+
+Conversion en symboles :
+
+d6 = 1 en base 5 → B (car A=0, B=1, …, E=4)
+d5 = 0 en base 4 → A
+d4 = 4 en base 7 → E (A=0, B=1, C=2, D=3, E=4)
+d3 = 4 en base 6 → E (A=0, B=1, C=2, D=3, E=4)
+d2 = 0 en base 5 → A
+d1 = 0 en base 4 → A
+En assemblant de la position la plus élevée à la plus faible, on obtient le résultat :
+
+FLAG final : BAEEAA
+Cette méthode décompose le nombre en fonction des poids des positions et traduit chaque chiffre en lettre selon l'alphabet de la base correspondante.

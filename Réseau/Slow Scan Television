@@ -1,0 +1,12 @@
+Projet : 
+https://github.com/colaclanth/sstv
+
+Console :
+pip install setuptools
+python setup.py install
+
+
+puis :
+sstv -d .\36robot.wav -o result.png
+
+FLAG : CYBER42Y

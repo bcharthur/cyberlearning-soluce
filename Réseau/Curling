@@ -1,0 +1,88 @@
+import re
+import base64
+import requests
+
+def parse_creds(page_text: str):
+    """
+    Cherche automatiquement le login et le mot de passe mentionnés
+    dans le code HTML (ex. 'Login : Bl9XJwlDNr' / 'mot de passe : dUVRMWJtd0dTM2Rv').
+    Retourne (login, password) en chaînes brutes.
+    """
+    # Regex pour extraire :
+    # 1) "Login : <quelquechose>"
+    # 2) "mot de passe : <quelquechose>"
+    login_match = re.search(r'Login\s*:\s*([^\s]+)', page_text)
+    pass_match = re.search(r'mot de passe\s*:\s*([^\s]+)', page_text)
+
+    if login_match and pass_match:
+        return login_match.group(1), pass_match.group(1)
+    return None, None
+
+def fetch_page_without_auth():
+    """
+    Étape 1 : Accède à la page en simulant un User-Agent 'curl',
+    et renvoie le code HTML, même si c'est un 401.
+    """
+    url = "https://cyber-learning.fr/cyber-challenge/network/curl/index.php"
+    params = {"jeton": "Bl9XJwlDNr15"}
+    headers = {
+        "User-Agent": "curl/7.85.0",
+        "Accept": "*/*"
+    }
+    r = requests.get(url, params=params, headers=headers, allow_redirects=False)
+    return r
+
+def attempt_auth(username, password):
+    """
+    Tente une requête GET avec login/password en Basic Auth
+    et affiche le code statut + contenu si succès (code 200).
+    """
+    url = "https://cyber-learning.fr/cyber-challenge/network/curl/index.php"
+    params = {"jeton": "Bl9XJwlDNr15"}
+    headers = {
+        "User-Agent": "curl/7.85.0",
+        "Accept": "*/*"
+    }
+    resp = requests.get(url, params=params, headers=headers,
+                        auth=(username, password), allow_redirects=False)
+    print(f"[TEST] user='{username}' pass='{password}' -> {resp.status_code}")
+    if resp.status_code == 200:
+        print("Succès ! Contenu de la page :\n", resp.text)
+        return True
+    return False
+
+def main():
+    # 1) Récupère la page sans authentification (retourne 401)
+    r_no_auth = fetch_page_without_auth()
+    print("Code HTTP sans authentification :", r_no_auth.status_code)
+
+    # 2) Extrait le login/mot de passe dans le texte
+    login_found, pass_found = parse_creds(r_no_auth.text)
+    if not login_found or not pass_found:
+        print("Impossible de trouver 'Login :' ou 'mot de passe :' dans la page.")
+        return
+
+    print(f"Trouvé dans la page : Login={login_found}, Password={pass_found}")
+
+    # 3) On tente d'abord l'authentification "en clair"
+    if attempt_auth(login_found, pass_found):
+        return
+
+    # 4) Si ça échoue, on teste la version décodée du mot de passe
+    #    avec divers padding base64
+    for eq in ["", "=", "==", "==="]:
+        candidate = pass_found + eq
+        try:
+            decoded_pass = base64.b64decode(candidate).decode("utf-8", errors="ignore")
+            print(f"[Décodage] '{candidate}' => '{decoded_pass}'")
+            if attempt_auth(login_found, decoded_pass):
+                return
+        except Exception:
+            pass
+
+    # 5) On peut éventuellement tester d'autres stratégies (concat, etc.).
+    #    Mais dans ce challenge, le mot de passe "dUVR... => uEQ1bmwGS3do"
+    #    avec un padding a déjà fonctionné.
+
+if __name__ == "__main__":
+    main()

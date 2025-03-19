@@ -1,0 +1,22 @@
+import requests
+
+
+def main():
+    # CID et chemin du fichier stocké dans IPFS
+    cid = "bafybeifmrpj7phpye74ntyqm6ycnq5cozmio5pj4fvtjm6v53oqchshdzu"
+    path = "Cyber-Learning_IPFS.txt"
+
+    # URL du fichier via le gateway ipfs.io
+    url = f"https://ipfs.io/ipfs/{cid}/{path}"
+
+    try:
+        response = requests.get(url, timeout=10)  # On met un timeout pour éviter un blocage
+        response.raise_for_status()  # Lève une exception si code HTTP != 2xx
+        print("Contenu récupéré :")
+        print(response.text)
+    except requests.exceptions.RequestException as e:
+        print("Erreur lors de la récupération IPFS :", e)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,77 @@
+J'ai installé ghidra via :
+choco install ghidra
+
+puis j'ai lancé l'exécutable (attention faut un jdf 21+ commande pour installer : choco install temurin21 -y)
+
+j'ai mis le .exe dans le projet ghidra que j'ai créé
+
+j'ai double clique dessus et j'ai fais un scan avec ce qui était déjà coché
+
+
+j'ai réussi à récupérer ce code :
+
+
+
+int __cdecl _main(int _Argc,char **_Argv,char **_Env)
+
+{
+  bool bVar1;
+  undefined3 extraout_var;
+  
+  __main();
+  _printf("******************************************************************\n");
+  _printf("******************************************************************\n");
+  _printf("*****************     CYBER-LEARNING.FR     **********************\n");
+  _printf("*****************                           **********************\n");
+  _printf("******************************************************************\n");
+  _printf("******************************************************************\n\n");
+  _printf("Entrez votre code : \n");
+  _scanf("%d",&_num);
+  bVar1 = _Chk_Flag(_num);
+  if (CONCAT31(extraout_var,bVar1) == 0) {
+    _printf("Ce n\'est pas le bon code\n");
+  }
+  else {
+    _printf("Bravo votre FLAG est : \n");
+    _printf("%c",99);
+    _printf("%c",0x6e);
+    _printf("%c",0x78);
+    _printf("%c",0x48);
+    _printf("%c",0x54);
+    _printf("%c",0x34);
+    _printf("%c",0x65);
+    _printf("%c",0x70);
+    _printf("%c",0x7a);
+    _printf("%c\n\n",0x4b);
+    _printf("Vous pouvez utiliser ce flag sur le site cyber-learning.fr\n\n");
+  }
+  return 0;
+}
+
+
+
+
+Ce qui nous donne :
+99 → 'c'
+
+0x6e → 'n'
+
+0x78 → 'x'
+
+0x48 → 'H'
+
+0x54 → 'T'
+
+0x34 → '4'
+
+0x65 → 'e'
+
+0x70 → 'p'
+
+0x7a → 'z'
+
+0x4b → 'K'
+
+
+et hop on a le flag : cnxHT4epzK
+

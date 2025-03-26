@@ -1,0 +1,109 @@
+Compte Rendu : Cracking d’un PDF protégé par mot de passe (6 lettres majuscules)
+1) Générer la wordlist de 6 lettres majuscules
+L’indice du challenge nous indique que le mot de passe est constitué de 6 lettres majuscules. Il existe alors 
+26^6 = 308 915 775
+= 308 915 775 combinaisons. Si on génère toutes ces combinaisons dans un fichier texte, on obtient une wordlist pesant environ 2,3 Go.
+
+Voici un script Python pour créer ce fichier, nommé ici wl_pdf.txt :
+
+import itertools
+import string
+
+def generate_wordlist(filename="wl_pdf.txt"):
+    total = 26 ** 6  # 308915776 combinaisons
+    count = 0
+    with open(filename, "w", encoding="utf-8") as file:
+        for combo in itertools.product(string.ascii_uppercase, repeat=6):
+            word = ''.join(combo)
+            file.write(word + "\n")
+            count += 1
+            if count % 1_000_000 == 0:
+                print(f"{count} / {total} générées")
+
+if __name__ == "__main__":
+    generate_wordlist()
+itertools.product génère toutes les séquences de 6 caractères parmi la liste string.ascii_uppercase (A-Z).
+
+Après l’exécution, le fichier wl_pdf.txt fera plus de 2 Go.
+
+2) Extraction du hash PDF (pdf.hash) via pdf2john
+Afin de faire reconnaître notre PDF à des outils de cracking (comme John the Ripper), nous devons extraire le « hash » du PDF grâce à pdf2john. Une fois ce hash obtenu, John saura quel algorithme de chiffrement est utilisé et comment le bruteforcer.
+
+Installation de pdf2john :
+
+pip install pdf2john
+
+
+Création d’un script Python pdf_to_hash.py :
+
+import subprocess
+import sys
+
+def extract_pdf_hash(pdf_path, output_hash_file="pdf.hash"):
+    """
+    Exécute la commande 'pdf2john' pour extraire le hash du PDF 
+    et le sauvegarder dans output_hash_file.
+    """
+    try:
+        result = subprocess.run(["pdf2john", pdf_path],
+                                capture_output=True, text=True, check=True)
+        hash_data = result.stdout.strip()
+
+        with open(output_hash_file, "w", encoding="utf-8") as f:
+            f.write(hash_data)
+
+        return hash_data
+    except subprocess.CalledProcessError as e:
+        print("Erreur lors de l'exécution de pdf2john :", e)
+        sys.exit(1)
+    except Exception as ex:
+        print("Une erreur est survenue :", ex)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    pdf_path = "cyber-learning.pdf"  # Le PDF à cracker
+    hash_data = extract_pdf_hash(pdf_path)
+    print("Hash extrait du PDF :")
+    print(hash_data)
+L’exécution (python pdf_to_hash.py) va produire un fichier pdf.hash contenant une ligne qui commence par \$pdf\$1*2*40*2147421992...
+
+Voici, par exemple, le hash obtenu :
+
+$pdf$1*2*40*2147421992*1*16*aa89408eb55697163c669163b5df35c1*32*3768b6205c1f247cc83a4907fe59ab5d4e1de0e2b75b301f3f14a3e5f8ddc81f*32*e46306cae451083865a4b87bd89c03c3fd7f2f0461f139a70e8d7e4fa41515eb
+
+3) Utilisation de John the Ripper pour trouver le mot de passe
+John the Ripper (version jumbo) sait gérer les PDF grâce au format --format=pdf.
+Il suffit de lui passer la wordlist et le hash :
+
+john --format=pdf --wordlist=wl_pdf.txt pdf.hash
+--format=pdf : force l’utilisation du module PDF.
+
+--wordlist=wl_pdf.txt : la liste de tous les mots de passe possibles.
+
+pdf.hash : le fichier contenant le hash du PDF.
+
+Au bout de quelques secondes (ou minutes, selon la puissance de la machine et l’ordre d’apparition du mot de passe dans la wordlist), John affiche :
+CNYJUE           (?)
+1g 0:00:00:10 DONE (...)
+Session completed
+
+Ici, CNYJUE est le mot de passe trouvé.
+
+4) Ouverture du PDF avec le mot de passe trouvé
+À ce stade, vous pouvez ouvrir manuellement le PDF cyber-learning.pdf avec le mot de passe CNYJUE.
+Le fichier affiche alors :
+
+Bravo ! Voici votre Flag : vFR2cnxHT4epzKV6gr
+
+C’est la preuve que le mot de passe cracké est correct et que vous avez pu lire le contenu protégé.
+
+Conclusion
+Génération de la wordlist : un script Python avec itertools pour créer 308 915 776 mots de passe (6 lettres majuscules).
+
+Extraction du hash via pdf2john pour obtenir un fichier pdf.hash parfaitement compatible avec John.
+
+Cracking avec John the Ripper en spécifiant le format PDF, la wordlist et le fichier de hash.
+
+Découverte du mot de passe : CNYJUE, qui permet de déchiffrer le PDF et d’afficher « Bravo ! Voici votre Flag : vFR2cnxHT4epzKV6gr ».
+
+Cette procédure montre l’importance de la taille d’une wordlist et du temps de calcul lorsqu’on bruteforce un PDF, tout en démontrant l’efficacité d’outils comme John the Ripper pour ce type de défi.

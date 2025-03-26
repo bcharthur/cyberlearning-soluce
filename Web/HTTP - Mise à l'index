@@ -1,0 +1,47 @@
+Compte Rendu – Exercice Web « Mise à l’index » (20 points)
+Description du Challenge
+L’énoncé « Si Apache n'est pas bien configuré, il liste tous les fichiers pour vous… » suggère que certaines pages ou répertoires ne sont pas correctement protégés, permettant un accès direct à des ressources internes.
+
+URL du challenge : https://cyber-learning.fr/cyber-challenge/web/web7/?jeton=mWWfU3RFJ117
+
+Sur la page principale, on aperçoit un commentaire <!-- obsolete dossier admin à supprimer -->, ce qui nous met la puce à l’oreille pour fouiller un éventuel répertoire « admin ».
+
+Recherche de l’index
+On tente l’URL suivante, dérivée de l’observation précédente : https://cyber-learning.fr/cyber-challenge/web/web7/admin/
+
+Le serveur, mal configuré, autorise l’indexation du répertoire :
+
+Index of /challenges/web/web7/admin
+[DIR]  backup/
+[TXT]  password.html
+
+Exploration de password.html
+Le fichier password.html ne contient pas d’information utile :
+Vous y avez cru ? Non ?!? 
+
+Exploration de backup/
+En revanche, le dossier backup/ est également indexé :
+
+Index of /challenges/web/web7/admin/backup
+[TXT] password.txt
+
+Mais en cliquant sur password.txt, on est redirigé vers quelque chose du genre : password.php?jeton=
+
+Il suffit donc de reprendre notre jeton=mWWfU3RFJ117 et de l’insérer dans l’URL :
+
+https://cyber-learning.fr/cyber-challenge/web/web7/admin/backup/password.php?jeton=mWWfU3RFJ117
+La page renvoie alors :
+
+TROP FORT ! - - - Mot de passe : sCNY9juEQ1bmwGS3d
+
+Conclusion
+Grâce à l’indexation non sécurisée, nous avons pu :
+
+Découvrir un répertoire admin/.
+Repérer un sous-répertoire backup/.
+Constater la présence d’un fichier potentiellement sensible password.txt.
+Trouver la page password.php qui, avec le jeton correct, nous révèle le mot de passe recherché :
+
+sCNY9juEQ1bmwGS3d
+
+Cette faille illustre l’importance de désactiver l’indexation automatique sur les serveurs web et de protéger les répertoires contenant des fichiers sensibles.

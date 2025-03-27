@@ -1,0 +1,33 @@
+Objectif :
+Obtenir le flag d'une application web via une injection SQL sur une URL spécifique.
+
+Étapes du travail :
+Ciblage de l'URL vulnérable : Vous avez ciblé l'URL suivante contenant un paramètre GET dynamique jeton :
+
+https://web2.cyber-learning.fr/items.php?jeton=Z1b19WaRTt12&category=1
+Vous avez validé que ce paramètre jeton était dynamique et que l'application était susceptible à une injection SQL sur le paramètre category.
+
+Test des injections SQL avec SQLMap : Vous avez utilisé SQLMap pour effectuer un scan d'injection SQL sur l'URL. En testant plusieurs types d'injections (boolean-based, time-based et UNION), vous avez réussi à identifier un point vulnérable sur le paramètre category.
+
+Exploitation de l'injection : Vous avez ensuite ciblé la base de données bdd2 et spécifiquement la table flag_solution_cyber pour récupérer le contenu de la colonne flag_a_utiliser. Après avoir exécuté la commande suivante dans SQLMap :
+
+python .\sqlmap\sqlmap.py -u "https://web2.cyber-learning.fr/items.php?jeton=Z1b19WaRTt12&category=1" --batch -D bdd2 -T flag_solution_cyber --columns
+
+SQLMap a trouvé quatre colonnes dans la table flag_solution_cyber :
+date_rec (timestamp)
+flag_a_utiliser (varchar(20))
+id (int(11))
+jeton (varchar(15))
+
+Récupération des données du flag : Vous avez ciblé spécifiquement la colonne flag_a_utiliser pour extraire les données en utilisant la commande suivante :
+
+python .\sqlmap\sqlmap.py -u "https://web2.cyber-learning.fr/items.php?jeton=Z1b19WaRTt12&category=1" --batch -D bdd2 -T flag_solution_cyber -C flag_a_utiliser --dump
+
+Après l'exécution, vous avez obtenu un extrait des données où le flag PZakvFR2cnxH a été trouvé parmi des valeurs répétitives de "trop tard...".
+
+Résultats : Vous avez pu extraire le flag :
+
+PZakvFR2cnxH
+
+Conclusion :
+Grâce à l'utilisation d'SQLMap, vous avez pu exploiter une vulnérabilité d'injection SQL sur l'URL cible, accéder à la base de données, et extraire le flag caché dans la colonne flag_a_utiliser. Vous avez pris en compte les messages d'erreur HTTP (500) lors de l'extraction, et malgré la grande quantité de données récupérées, vous avez réussi à identifier le flag avec succès.

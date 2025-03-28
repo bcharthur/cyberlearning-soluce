@@ -1,0 +1,22 @@
+# Dictionnaire des accords fréquents (format corde 6 à 1)
+chord_shapes = {
+    "320003": "G",
+    "x32010": "C",
+    "133211": "F",
+    "x24442": "B",
+    "022100": "E",
+    "x02220": "A",
+    "xx0232": "D"
+}
+
+# Liste des positions à décoder
+sequence = [
+    "320003", "x32010", "133211", "x24442", "022100", "x02220", "xx0232",
+    "320003", "x32010", "133211"
+]
+
+# Décodage
+decoded = [chord_shapes.get(chord, "?") for chord in sequence]
+
+# Affichage
+print("Accords décodés :", "".join(decoded))

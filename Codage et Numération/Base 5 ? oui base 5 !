@@ -1,0 +1,15 @@
+def decimal_to_base_5(n):
+    if n == 0:
+        return "0"
+    digits = []
+    while n > 0:
+        digits.append(str(n % 5))
+        n //= 5
+    return ''.join(reversed(digits))
+
+# Nombre à convertir
+decimal_number = 13350
+
+# Conversion
+base5_result = decimal_to_base_5(decimal_number)
+print(f"{decimal_number} en base 5 = {base5_result}")

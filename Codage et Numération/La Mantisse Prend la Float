@@ -1,2 +1,20 @@
 
 https://www.h-schmidt.net/FloatConverter/IEEE754.html
+
+
+ou 
+
+
+
+import struct
+
+# Nombre décimal à convertir
+number = 35207.0
+
+# Conversion float → bytes → bits
+# '>f' : float 32-bit in big-endian
+packed = struct.pack('>f', number)
+bits = ''.join(f'{byte:08b}' for byte in packed)
+
+# Affichage
+print(f"{number} en IEEE 754 (float 32 bits) = {bits}")

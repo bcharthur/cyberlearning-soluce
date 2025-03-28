@@ -1,0 +1,28 @@
+def decimal_to_custom_base(n, alphabet):
+    base = len(alphabet)
+    if n == 0:
+        return alphabet[0]
+
+    result = ""
+    while n > 0:
+        n, remainder = divmod(n, base)
+        result = alphabet[remainder] + result
+    return result
+
+
+def main():
+    print("=== Convertisseur Base 65 Personnalisée ===")
+
+    # L'alphabet Totof base 65 donné dans l'énoncé
+    base65_symbols = "ABCDEF?!*GHIJKLMNOPQRSTUVWXYZ1234567890azertyuiopmlkjhgfdsqwxcvbn"
+
+    # Nombre décimal à convertir
+    decimal_number = 295908291761181
+
+    # Conversion
+    converted = decimal_to_custom_base(decimal_number, base65_symbols)
+    print(f"\nRésultat : {converted}")
+
+
+if __name__ == "__main__":
+    main()

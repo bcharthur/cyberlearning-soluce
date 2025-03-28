@@ -1,0 +1,16 @@
+def decimal_to_base_n(n, base):
+    if n == 0:
+        return "0"
+    digits = []
+    while n > 0:
+        digits.append(str(n % base))
+        n //= base
+    return ''.join(reversed(digits))
+
+# Nombre à convertir
+decimal_number = 40280
+
+# Conversion en base 3
+base3_result = decimal_to_base_n(decimal_number, 3)
+
+print(f"{decimal_number} en base 3 = {base3_result}")

@@ -1,0 +1,27 @@
+url : https://cyber-learning.fr/cyber-challenge/web/web10/?jeton=JNJiikGvLR11
+
+on va dans la console navigateur --> network --> refresh page
+
+on va dans la trame web10/?jeton= ...
+on regarde la valeur du cookie dans le response header :
+
+content-encoding:
+gzip
+
+content-type:
+text/html; charset=UTF-8
+date:
+Fri, 28 Mar 2025 13:08:05 GMT
+server:
+Apache
+set-cookie:
+login=admin; expires=Fri, 28-Mar-2025 13:13:05 GMT; Max-Age=300
+set-cookie:
+motdepasse=3doyJU5fqAL; expires=Fri, 28-Mar-2025 13:13:05 GMT; Max-Age=300
+strict-transport-security:
+max-age=16000000
+vary:
+Accept-Encoding
+
+
+le flag est : 3doyJU5fqAL

@@ -1,0 +1,20 @@
+# Dictionnaire des symboles Shadoks
+shadok_digits = ['Ga', 'Bu', 'Zo', 'Meu']
+
+# Nombre à convertir
+decimal_number = 1943
+
+# Conversion en base 4 avec symboles Shadok
+def decimal_to_shadok(n):
+    if n == 0:
+        return shadok_digits[0]  # Cas particulier pour 0
+    result = []
+    while n > 0:
+        remainder = n % 4
+        result.append(shadok_digits[remainder])
+        n //= 4
+    return ''.join(reversed(result))
+
+# Affichage
+shadok_result = decimal_to_shadok(decimal_number)
+print(f"{decimal_number} en Shadok = {shadok_result}")

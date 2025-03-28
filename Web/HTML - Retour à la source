@@ -1,0 +1,24 @@
+y a un mdp a mettre pour accéder à :
+https://cyber-learning.fr/cyber-challenge/web/web3/?jeton=pVulykoeGD15
+
+dans le code de la page on a :
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Fermé</title>
+        <link rel="stylesheet" href="../style.css">
+             
+<script>  function i(){p=prompt("Mot de passe ??");if ( p == "EQ1bmwGS3doyJU5" ) {alert("BRAVO !!! Ce mot de passe sera votre FLAG");  }else {alert("Nop !!!");}} </script>                                                                                                                                                                                                                                             <script>  function i(){p=prompt("Mot de passe ??");if ( p == "EQ1bmwGS3doyJU5" ) {alert("BRAVO !!! Ce mot de passe sera votre FLAG");  }else {alert("Nop !!!");}} </script>
+    </head>
+   <body onload="i();">
+   <section class="cyberpunk black both">
+
+<h1 class="cyberpunk glitched">Vous ne passerez pas !</h1></section>
+</body>
+</html>
+
+
+
+le flag est EQ1bmwGS3doyJU5

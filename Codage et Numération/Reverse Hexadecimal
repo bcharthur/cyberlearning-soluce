@@ -1,0 +1,18 @@
+def to_reverse_hex(n):
+    # Table des symboles ReverseHex : index 0 = 0 en hex => "F", ..., index 15 = F => "0"
+    reverse_hex_symbols = "FEDCBA9876543210"
+
+    if n == 0:
+        return reverse_hex_symbols[0]  # ReverseHex de 0
+
+    result = ""
+    while n > 0:
+        remainder = n % 16
+        result = reverse_hex_symbols[remainder] + result
+        n //= 16
+    return result
+
+# Test avec 6755
+decimal_number = 6755
+reverse_hex = to_reverse_hex(decimal_number)
+print(f"{decimal_number} en ReverseHex = {reverse_hex}")

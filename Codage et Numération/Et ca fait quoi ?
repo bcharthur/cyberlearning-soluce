@@ -1,0 +1,9 @@
+# Nombres à utiliser
+a = 163
+b = 152
+
+# Opération binaire AND
+result = a & b
+
+# Affichage
+print(f"{a} ∧ {b} (bitwise AND) = {result}")

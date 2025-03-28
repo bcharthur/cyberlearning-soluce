@@ -1,0 +1,26 @@
+def encode_diagonal_style(n):
+    """
+    Convertit un entier en binaire et applique l'encodage spécial :
+    - Chaque '1' reste '1'
+    - Chaque '0' devient '000'
+    """
+    binary = bin(n)[2:]  # Retire le préfixe '0b'
+    result = ''
+    for bit in binary:
+        if bit == '1':
+            result += '1'
+        else:
+            result += '000'
+    return result
+
+def main():
+    print("=== Encodeur 'Diagonale d'un carré' ===")
+    try:
+        number = int(input("Entrez un nombre décimal à encoder : "))
+        encoded = encode_diagonal_style(number)
+        print(f"\nRésultat encodé : {encoded}")
+    except ValueError:
+        print("Veuillez entrer un nombre entier valide.")
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,16 @@
+def twos_complement_to_decimal(binary_str):
+    bits = len(binary_str)
+    value = int(binary_str, 2)
+
+    if binary_str[0] == '1':
+        # Nombre négatif en complément à deux
+        value -= (1 << bits)
+    return value
+
+
+# Nombre binaire à convertir
+binary_input = '1111111110010110'
+
+# Conversion
+decimal_result = twos_complement_to_decimal(binary_input)
+print(f"{binary_input} en décimal signé = {decimal_result}")

@@ -47,3 +47,39 @@ En assemblant de la position la plus élevée à la plus faible, on obtient le r
 
 FLAG final : BAEEAA
 Cette méthode décompose le nombre en fonction des poids des positions et traduit chaque chiffre en lettre selon l'alphabet de la base correspondante.
+
+
+
+
+
+Ou :
+
+def to_rotating_base(n, base_sequence, symbols):
+    result = ""
+    i = 0  # position index (right to left)
+
+    while n > 0:
+        base = base_sequence[i % len(base_sequence)]
+        digit = n % base
+        result = symbols[digit] + result
+        n //= base
+        i += 1
+
+    return result
+
+def main():
+    print("=== Convertisseur Base Tournante ===")
+    decimal_number = 3920
+
+    # Séquence de bases : [4, 5, 6, 7]
+    base_seq = [4, 5, 6, 7]
+
+    # Symboles pour les chiffres : même pour toutes les bases
+    symbols = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+
+    # Conversion
+    result = to_rotating_base(decimal_number, base_seq, symbols)
+    print(f"{decimal_number} en base tournante = {result}")
+
+if __name__ == "__main__":
+    main()

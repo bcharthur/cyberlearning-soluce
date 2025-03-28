@@ -1,0 +1,20 @@
+def decimal_to_bibi(n):
+    # Table de correspondance hexadécimal → Bibi
+    hex_to_bibi = {
+        '0': 'HO', '1': 'HA', '2': 'HE', '3': 'HI',
+        '4': 'BO', '5': 'BA', '6': 'BE', '7': 'BI',
+        '8': 'KO', '9': 'KA', 'A': 'KE', 'B': 'KI',
+        'C': 'DO', 'D': 'DA', 'E': 'DE', 'F': 'DI'
+    }
+
+    # Étape 1 : Convertir en hex (en majuscules)
+    hex_string = hex(n)[2:].upper()
+
+    # Étape 2 : Convertir chaque caractère en syllabe Bibi
+    bibi_result = ''.join(hex_to_bibi[ch] for ch in hex_string)
+    return bibi_result
+
+# Test avec le nombre donné
+decimal_number = 13338
+bibi_output = decimal_to_bibi(decimal_number)
+print(f"{decimal_number} en Bibi-binaire = {bibi_output}")

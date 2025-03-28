@@ -1,0 +1,36 @@
+on a une url : https://cyber-learning.fr/cyber-challenge/web/web2/?jeton=cIUCOec8WB10
+
+on regarde dans l'inspection de la page :
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Fermé</title>
+        <link rel="stylesheet" href="../style.css">
+             <script>  function i(){	var l=document.log.login.value;	var p=document.log.password.value;	if (l=="Admin" && p=="wGS3doyJU5") {	    alert("BRAVO !!! Ce mot de passe sera votre FLAG");	} else { 	    alert("C\'est pas du tout ca...."); 	}} </script>
+                                                                                                                                                                                                                                                                                                                                                                                                               <script>  function i(){	var l=document.log.login.value;	var p=document.log.password.value;	if (l=="Admin" && p=="wGS3doyJU5") {	    alert("BRAVO !!! Ce mot de passe sera votre FLAG");	} else { 	    alert("C\'est pas du tout ca...."); 	}} </script>
+    </head>
+   <body>
+   <section class="cyberpunk black both">
+
+<h1 class="cyberpunk glitched">Vous ne passerez pas !</h1>
+</section>
+<section class="cyberpunk both" name="section">
+        <form name="log">
+            <div>
+                <label class="cyberpunk">Login : </label> <input  type="text" name="login" value="" size="20" class="cyberpunk"/>
+                <label class="cyberpunk">Password : </label> <input  type="text" name="password" value="" size="20" class="cyberpunk"/>
+                <input onclick="i()" type="submit" value="Member access" name="authbutton"  class="cyberpunk"/>
+                <input type="hidden" name="jeton" value="cIUCOec8WB10">
+            </div>
+        </form></section>
+</body>
+</html>
+
+
+
+
+le login est : Admin
+le mot de passe est : wGS3doyJU5
+
+
+le flag est wGS3doyJU5

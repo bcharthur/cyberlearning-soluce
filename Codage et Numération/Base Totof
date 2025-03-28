@@ -1,0 +1,24 @@
+def decimal_to_totof(n):
+    # Alphabet Totof : position = valeur
+    totof_digits = list("ChRiStOpHe")  # index 0 = 'C', ..., index 9 = 'e'
+
+    if n == 0:
+        return totof_digits[0]
+
+    result = ""
+    while n > 0:
+        n, remainder = divmod(n, 10)
+        result = totof_digits[remainder] + result
+    return result
+
+def main():
+    print("=== Convertisseur Base Totof ===")
+    try:
+        number = int(input("Entrez un nombre décimal : "))
+        converted = decimal_to_totof(number)
+        print(f"\nRésultat en base Totof : {converted}")
+    except ValueError:
+        print("Veuillez entrer un nombre entier valide.")
+
+if __name__ == "__main__":
+    main()

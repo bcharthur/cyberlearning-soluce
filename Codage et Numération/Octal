@@ -1,0 +1,8 @@
+# Nombre décimal à convertir
+decimal_number = 28395
+
+# Conversion en base 8 (octal)
+octal_number = oct(decimal_number).replace("0o", "")  # Retirer le préfixe '0o'
+
+# Affichage
+print(f"{decimal_number} en base 8 = {octal_number}")

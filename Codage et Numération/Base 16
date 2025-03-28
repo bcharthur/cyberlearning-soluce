@@ -1,0 +1,16 @@
+# Conversion des deux nombres hexadécimaux en décimal
+hex1 = '455'
+hex2 = 'E7'
+
+# Conversion en base 10
+dec1 = int(hex1, 16)
+dec2 = int(hex2, 16)
+
+# Addition en base 10
+sum_dec = dec1 + dec2
+
+# Conversion du résultat en base 16
+sum_hex = hex(sum_dec).upper().replace("0X", "")  # format propre en majuscules sans '0x'
+
+# Affichage
+print(f"{hex1} + {hex2} = {sum_hex} (en hexadécimal)")

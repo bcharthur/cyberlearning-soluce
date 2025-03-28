@@ -1,0 +1,9 @@
+# Nombres donnés
+a = 203
+b = 205
+
+# Opération bitwise OR
+result = a | b
+
+# Affichage
+print(f"{a} ∨ {b} (bitwise OR) = {result}")

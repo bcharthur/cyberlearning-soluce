@@ -1,0 +1,123 @@
+#!/usr/bin/env python3
+import json
+import re
+import time
+from collections import defaultdict
+from typing import Dict, List, Tuple
+
+import requests
+from bs4 import BeautifulSoup
+
+URL = "https://cyber-learning.fr/cyber-challenge/programmation/blockchain/index.php?jeton=HpUYX5h3Bj11"
+HEADERS = {"User-Agent": "CL-BlockChainSolver/1.0 (+requests)"}
+TIMEOUT = (3, 3)
+SUCCESS_KEYWORDS = [
+    r"bravo",
+    r"flag\{",
+    r"code correct",
+    r"ok",
+]
+
+def fetch_page(session: requests.Session) -> str:
+    print("[*] Fetching page")
+    resp = session.get(URL, headers=HEADERS, timeout=TIMEOUT)
+    resp.raise_for_status()
+    return resp.text
+
+def extract_blocks(html: str) -> List[Dict]:
+    print("[*] Extracting blocks")
+    soup = BeautifulSoup(html, "html.parser")
+    div = soup.find("div", class_="blockchain")
+    if not div:
+        raise ValueError("No <div class='blockchain'> found")
+    text = div.get_text(strip=True)
+    # Ensure JSON array
+    if not text.startswith("["):
+        raise ValueError("JSON does not start with '['")
+    blocks = json.loads(text)
+    print(f"[*] Parsed {len(blocks)} blocks")
+    return blocks
+
+def rebuild_chain(blocks: List[Dict]) -> List[Dict]:
+    print("[*] Rebuilding chain")
+    by_hash: Dict[str, Dict] = {b["hash"]: b for b in blocks}
+    children: Dict[str, List[Dict]] = defaultdict(list)
+    for b in blocks:
+        children[b["previous_hash"]].append(b)
+
+    # Find genesis candidates
+    genesis_candidates = [
+        b for b in blocks
+        if b["previous_hash"] == "0" or b["previous_hash"] not in by_hash
+    ]
+    print(f"[*] Found {len(genesis_candidates)} genesis candidate(s)")
+
+    longest_chain: List[Dict] = []
+
+    def dfs(node: Dict, path: List[Dict]):
+        nonlocal longest_chain
+        path.append(node)
+        child_list = children.get(node["hash"], [])
+        if not child_list:
+            if len(path) > len(longest_chain):
+                longest_chain = path.copy()
+        else:
+            for child in child_list:
+                dfs(child, path)
+        path.pop()
+
+    for genesis in genesis_candidates:
+        dfs(genesis, [])
+
+    print(f"[*] Longest chain length: {len(longest_chain)}")
+    return longest_chain
+
+def get_tail_data(chain: List[Dict]) -> str:
+    if not chain:
+        raise ValueError("Empty chain")
+    tail = chain[-1]
+    data = tail.get("data", "")
+    print(f"[*] Tail data: {data[:60]}{'...' if len(data)>60 else ''}")
+    return data
+
+def submit(session: requests.Session, data: str) -> str:
+    print("[*] Submitting data")
+    payload = {"copie": data}
+    resp = session.post(URL, data=payload, headers=HEADERS, timeout=TIMEOUT)
+    resp.raise_for_status()
+    print("[*] Received response")
+    return resp.text
+
+def is_success(html: str) -> bool:
+    lower = html.lower()
+    for kw in SUCCESS_KEYWORDS:
+        if re.search(kw, lower):
+            return True
+    return False
+
+def main():
+    session = requests.Session()
+    session.headers.update(HEADERS)
+    attempt = 0
+    while True:
+        attempt += 1
+        print(f"\n=== Attempt #{attempt} ===")
+        try:
+            html = fetch_page(session)
+            blocks = extract_blocks(html)
+            chain = rebuild_chain(blocks)
+            tail_data = get_tail_data(chain)
+            response_html = submit(session, tail_data)
+            snippet = response_html[:1200]
+            print(f"[*] Response snippet:\n{snippet}\n")
+            if is_success(response_html):
+                print("[+] Success! Exiting.")
+                break
+            else:
+                print("[-] Not successful, retrying...")
+        except Exception as e:
+            print(f"[!] Exception: {e}")
+        time.sleep(0.15)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import time
+import re
+import json
+from urllib.parse import urljoin, urlparse
+
+import requests
+
+URL = "https://cyber-learning.fr/cyber-challenge/programmation/pushpush/index.php?jeton=VxUkCqK1D512"
+USER_AGENT = "Mozilla/5.0 (compatible; CL-PushSolver/1.0)"
+TIMEOUT = (3, 3)
+MAX_ATTEMPTS = 5
+PAUSE = 0.1
+
+SUCCESS_RX = re.compile(r"(bravo|flag\{|code\s*correct|ok)", re.I)
+
+def log(msg: str) -> None:
+    print(f"[{time.strftime('%H:%M:%S')}] {msg}")
+
+def base_url_of(page_url: str) -> str:
+    u = urlparse(page_url)
+    return f"{u.scheme}://{u.netloc}"
+
+def fetch_init(session: requests.Session, page_url: str):
+    """GET init_puzzle.php -> dict with {positions, labels, signature}"""
+    # init_puzzle.php est dans le même dossier que index.php
+    init_url = urljoin(page_url, "init_puzzle.php")
+    r = session.get(init_url, timeout=TIMEOUT)
+    r.raise_for_status()
+    data = r.json()
+    # data: {"positions":[...16...], "labels":[...16...], "signature":"..."}
+    if not isinstance(data, dict) or "labels" not in data or "signature" not in data:
+        raise RuntimeError("Réponse init_puzzle.php inattendue")
+    return data
+
+def compute_solution(labels):
+    """
+    Le JS côté client envoie, quand le puzzle est résolu, la concaténation
+    des labels lus en lecture gauche→droite, haut→bas, pour les 15 tuiles visibles.
+    Dans l’état résolu, c’est simplement labels[0], labels[1], ..., labels[14].
+    """
+    # sécurité: ignorer l’index 15 (case vide)
+    ordered = [labels[i] for i in range(len(labels)) if i != 15]
+    return "-".join(ordered)
+
+def submit(session: requests.Session, page_url: str, solution: str, signature: str) -> str:
+    """
+    Le formulaire a action="" → POST au même endpoint.
+    Champs attendus: solution, signature.
+    """
+    data = {"solution": solution, "signature": signature}
+    r = session.post(page_url, data=data, timeout=TIMEOUT)
+    r.raise_for_status()
+    return r.text
+
+def main():
+    session = requests.Session()
+    session.headers.update({"User-Agent": USER_AGENT})
+
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        log(f"Tentative {attempt}/{MAX_ATTEMPTS}")
+        try:
+            # Optionnel: ouvrir la page pour poser les cookies/session côté serveur
+            session.get(URL, timeout=TIMEOUT)
+
+            init_data = fetch_init(session, URL)
+            labels = init_data["labels"]
+            signature = init_data["signature"]
+
+            solution = compute_solution(labels)
+            log(f"Solution calculée: {solution}")
+            log(f"Signature reçue: {signature}")
+
+            html = submit(session, URL, solution, signature)
+            snippet = html[:600].replace("\n", " ")
+            log(f"Réponse (extrait): {snippet}")
+
+            if SUCCESS_RX.search(html):
+                log("✅ Succès détecté !")
+                break
+            else:
+                log("❌ Pas encore bon (ou trop tard). On retente…")
+
+        except Exception as e:
+            log(f"Erreur: {e}")
+
+        time.sleep(PAUSE)
+
+if __name__ == "__main__":
+    main()

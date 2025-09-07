@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+import re
+import time
+import requests
+from bs4 import BeautifulSoup
+
+URL = "https://cyber-learning.fr/cyber-challenge/programmation/mastermind/sujet.php?jeton=rH3IZjSPC510"
+SUCCESS_KEYWORDS = ["Bravo", "FLAG", "Code correct", "Réussi", "Succès"]
+
+def parse_constraints(html):
+    soup = BeautifulSoup(html, "html.parser")
+    div = soup.find("div", class_="conditions")
+    if not div:
+        return []
+    text = div.get_text(separator="\n")
+    pattern = re.compile(r"(\d{5})\s*:\s*(\d+)\s*chiffres justes,\s*(\d+)\s*bien placés", re.I)
+    return [(m.group(1), int(m.group(2)), int(m.group(3))) for m in pattern.finditer(text)]
+
+def mastermind_feedback(secret, guess):
+    well = sum(s == g for s, g in zip(secret, guess))
+    # count digits
+    from collections import Counter
+    s_cnt = Counter(secret)
+    g_cnt = Counter(guess)
+    correct = sum(min(s_cnt[d], g_cnt[d]) for d in s_cnt)
+    return correct, well
+
+def find_solution(constraints):
+    for num in range(100000):
+        cand = f"{num:05d}"
+        ok = True
+        for code, corr, well in constraints:
+            c, w = mastermind_feedback(code, cand)
+            if c != corr or w != well:
+                ok = False
+                break
+        if ok:
+            return cand
+    return None
+
+def main():
+    session = requests.Session()
+    while True:
+        try:
+            resp = session.get(URL, timeout=5)
+            resp.raise_for_status()
+        except Exception as e:
+            print(f"Error fetching page: {e}")
+            time.sleep(1)
+            continue
+
+        constraints = parse_constraints(resp.text)
+        if not constraints:
+            print("No constraints found.")
+            time.sleep(1)
+            continue
+
+        solution = find_solution(constraints)
+        if not solution:
+            print("No solution found.")
+            time.sleep(1)
+            continue
+
+        try:
+            post_resp = session.post(URL, data={"copie": solution}, timeout=5)
+            post_resp.raise_for_status()
+        except Exception as e:
+            print(f"Error submitting: {e}")
+            time.sleep(1)
+            continue
+
+        content = post_resp.text
+        print(content[:1000])
+        if any(k in content for k in SUCCESS_KEYWORDS):
+            break
+        time.sleep(1)
+
+if __name__ == "__main__":
+    main()
